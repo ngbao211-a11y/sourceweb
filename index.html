@@ -382,10 +382,30 @@ async function init() {
     }
 
     track('pageview', activeLink.id);
-  } catch(e) {
-    document.getElementById('buttons-wrap').innerHTML =
-      '<div class="loading" style="color:#ff4d6d">⚠ Không kết nối được API.<br><small>Chạy trên server PHP có MySQL.</small></div>';
-    renderUnlockTarget({ id: 0, display_name: 'Chưa sẵn sàng', target_url: '#' });
+  } catch (e) {
+    // Keep the public unlock flow usable in static previews while the PHP API is offline.
+    const fallbackLink = {
+      id: 0,
+      display_name: 'Truy cập liên kết',
+      unlocked_text: 'Mở liên kết',
+      target_url: urlParams.get('target') || '#',
+      description: 'Hoàn thành bước xác minh để tiếp tục.'
+    };
+    const fallbackChannels = [
+      {
+        id: 'demo-follow',
+        name: 'Xác minh truy cập',
+        url: urlParams.get('verify') || '#',
+        is_required: 1
+      }
+    ];
+
+    document.getElementById('page-title').textContent = 'Unlock Link';
+    document.getElementById('page-desc').textContent = fallbackLink.description;
+    document.getElementById('steps-label').style.display = '';
+    document.getElementById('progress-wrap').style.display = '';
+    renderUnlockTarget(fallbackLink);
+    renderChannels(fallbackChannels, '#8b7cf6', fallbackLink.id);
   }
 }
 
