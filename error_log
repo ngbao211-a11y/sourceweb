@@ -1,0 +1,27 @@
+[30-Mar-2026 20:41:22 Asia/Ho_Chi_Minh] PHP Fatal error:  Uncaught TypeError: date(): Argument #2 ($timestamp) must be of type ?int, string given in /home/tcodevipfun/public_html/classes/functions.php:494
+Stack trace:
+#0 /home/tcodevipfun/public_html/classes/functions.php(494): date()
+#1 /home/tcodevipfun/public_html/cpanel/index.php(308): timeAgo()
+#2 {main}
+  thrown in /home/tcodevipfun/public_html/classes/functions.php on line 494
+[30-Mar-2026 13:55:23 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 254
+[30-Mar-2026 13:55:25 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 254
+[30-Mar-2026 13:55:25 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 254
+[30-Mar-2026 13:55:26 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 254
+[30-Mar-2026 13:55:26 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 254
+[30-Mar-2026 13:55:26 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 254
+[30-Mar-2026 13:55:26 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 254
+[30-Mar-2026 13:56:36 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 255
+[30-Mar-2026 13:56:37 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 255
+[30-Mar-2026 13:56:37 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 255
+[30-Mar-2026 13:56:37 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 255
+[30-Mar-2026 13:56:37 UTC] PHP Parse error:  syntax error, unexpected token "<", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 255
+[30-Mar-2026 16:34:52 UTC] PHP Parse error:  syntax error, unexpected token "endforeach", expecting end of file in /home/tcodevipfun/public_html/cpanel/index.php on line 274
+[30-Mar-2026 23:48:19 Asia/Ho_Chi_Minh] PHP Fatal error:  Cannot redeclare timeAgo() (previously declared in /home/tcodevipfun/public_html/cpanel/index.php:287) in /home/tcodevipfun/public_html/classes/functions.php on line 535
+[30-Mar-2026 23:50:42 Asia/Ho_Chi_Minh] PHP Fatal error:  Cannot redeclare timeAgo() (previously declared in /home/tcodevipfun/public_html/cpanel/index.php:287) in /home/tcodevipfun/public_html/classes/functions.php on line 535
+[30-Mar-2026 23:50:43 Asia/Ho_Chi_Minh] PHP Fatal error:  Cannot redeclare timeAgo() (previously declared in /home/tcodevipfun/public_html/cpanel/index.php:287) in /home/tcodevipfun/public_html/classes/functions.php on line 535
+[30-Mar-2026 23:50:43 Asia/Ho_Chi_Minh] PHP Fatal error:  Cannot redeclare timeAgo() (previously declared in /home/tcodevipfun/public_html/cpanel/index.php:287) in /home/tcodevipfun/public_html/classes/functions.php on line 535
+[30-Mar-2026 23:50:43 Asia/Ho_Chi_Minh] PHP Fatal error:  Cannot redeclare timeAgo() (previously declared in /home/tcodevipfun/public_html/cpanel/index.php:287) in /home/tcodevipfun/public_html/classes/functions.php on line 535
+[30-Mar-2026 23:50:43 Asia/Ho_Chi_Minh] PHP Fatal error:  Cannot redeclare timeAgo() (previously declared in /home/tcodevipfun/public_html/cpanel/index.php:287) in /home/tcodevipfun/public_html/classes/functions.php on line 535
+[30-Mar-2026 23:50:44 Asia/Ho_Chi_Minh] PHP Fatal error:  Cannot redeclare timeAgo() (previously declared in /home/tcodevipfun/public_html/cpanel/index.php:287) in /home/tcodevipfun/public_html/classes/functions.php on line 535
+[30-Mar-2026 23:50:44 Asia/Ho_Chi_Minh] PHP Fatal error:  Cannot redeclare timeAgo() (previously declared in /home/tcodevipfun/public_html/cpanel/index.php:287) in /home/tcodevipfun/public_html/classes/functions.php on line 535
