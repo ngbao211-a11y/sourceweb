@@ -1,24 +1,40 @@
 <?php
-/*
- * Copyright 2014 Google Inc.
+
+/**
+ * PHPMailer Exception class.
+ * PHP Version 5.5.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * @see       https://github.com/PHPMailer/PHPMailer/ The PHPMailer GitHub project
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * @author    Marcus Bointon (Synchro/coolbru) <phpmailer@synchromedia.co.uk>
+ * @author    Jim Jagielski (jimjag) <jimjag@gmail.com>
+ * @author    Andy Prevost (codeworxtech) <codeworxtech@users.sourceforge.net>
+ * @author    Brent R. Matzelle (original founder)
+ * @copyright 2012 - 2020 Marcus Bointon
+ * @copyright 2010 - 2012 Jim Jagielski
+ * @copyright 2004 - 2009 Andy Prevost
+ * @license   https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html GNU Lesser General Public License
+ * @note      This program is distributed in the hope that it will be useful - WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.
  */
 
-namespace Google\Task;
+namespace PHPMailer\PHPMailer;
 
-use Google\Exception as GoogleException;
-
-class Exception extends GoogleException
+/**
+ * PHPMailer exception handler.
+ *
+ * @author Marcus Bointon <phpmailer@synchromedia.co.uk>
+ */
+class Exception extends \Exception
 {
+    /**
+     * Prettify error message output.
+     *
+     * @return string
+     */
+    public function errorMessage()
+    {
+        return '<strong>' . htmlspecialchars($this->getMessage(), ENT_COMPAT | ENT_HTML401) . "</strong><br />\n";
+    }
 }

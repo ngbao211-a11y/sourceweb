@@ -1,38 +1,84 @@
 {
-    "name": "psr/http-factory",
-    "description": "PSR-17: Common interfaces for PSR-7 HTTP message factories",
+    "name": "phpseclib/phpseclib",
+    "type": "library",
+    "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
     "keywords": [
-        "psr",
-        "psr-7",
-        "psr-17",
-        "http",
-        "factory",
-        "message",
-        "request",
-        "response"
-    ],
+        "security",
+        "crypto",
+        "cryptography",
+        "encryption",
+        "signature",
+        "signing",
+        "rsa",
+        "aes",
+        "blowfish",
+        "twofish",
+        "ssh",
+        "sftp",
+        "x509",
+        "x.509",
+        "asn1",
+        "asn.1",
+        "BigInteger"
+        ],
+    "homepage": "http://phpseclib.sourceforge.net",
     "license": "MIT",
     "authors": [
         {
-            "name": "PHP-FIG",
-            "homepage": "https://www.php-fig.org/"
+            "name": "Jim Wigginton",
+            "email": "terrafrost@php.net",
+            "role": "Lead Developer"
+        },
+        {
+            "name": "Patrick Monnerat",
+            "email": "pm@datasphere.ch",
+            "role": "Developer"
+        },
+        {
+            "name": "Andreas Fischer",
+            "email": "bantu@phpbb.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Hans-Jürgen Petrich",
+            "email": "petrich@tronic-media.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Graham Campbell",
+            "email": "graham@alt-three.com",
+            "role": "Developer"
         }
     ],
-    "support": {
-        "source": "https://github.com/php-fig/http-factory"
-    },
     "require": {
-        "php": ">=7.1",
-        "psr/http-message": "^1.0 || ^2.0"
+        "php": ">=5.6.1",
+        "paragonie/constant_time_encoding": "^1|^2|^3",
+        "paragonie/random_compat": "^1.4|^2.0|^9.99.99"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    },
+    "suggest": {
+        "ext-libsodium": "SSH2/SFTP can make use of some algorithms provided by the libsodium-php extension.",
+        "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations.",
+        "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
+        "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations.",
+        "ext-dom": "Install the DOM extension to load XML formatted public keys."
     },
     "autoload": {
+        "files": [
+            "phpseclib/bootstrap.php"
+        ],
         "psr-4": {
-            "Psr\\Http\\Message\\": "src/"
+            "phpseclib3\\": "phpseclib/"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
+    "autoload-dev": {
+        "psr-4": {
+            "phpseclib3\\Tests\\": "tests/"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }

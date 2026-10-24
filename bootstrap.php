@@ -1,42 +1,22 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Register The Composer Auto Loader
-|--------------------------------------------------------------------------
-|
-| Composer provides a convenient, automatically generated class loader
-| for our application. We just need to utilize it! We'll require it
-| into the script here so that we do not have to worry about the
-| loading of any our classes "manually". Feels great to relax.
-|
-*/
+/**
+ * Bootstrapping File for phpseclib
+ *
+ * composer isn't a requirement for phpseclib 2.0 but this file isn't really required
+ * either. it's a bonus for those using composer but if you're not phpseclib will
+ * still work
+ *
+ * @license http://www.opensource.org/licenses/mit-license.html MIT License
+ */
 
-require __DIR__ . '/../vendor/autoload.php';
-
-/*
-|--------------------------------------------------------------------------
-| Set The Default Timezone
-|--------------------------------------------------------------------------
-|
-| Here we will set the default timezone for PHP. PHP is notoriously mean
-| if the timezone is not explicitly set. This will be used by each of
-| the PHP date and date-time functions throughout the application.
-|
-*/
-
-date_default_timezone_set('UTC');
-
-function d($args)
-{
-    foreach ($args as $arg) {
-        var_dump($arg);
+if (extension_loaded('mbstring')) {
+    // 2 - MB_OVERLOAD_STRING
+    // mbstring.func_overload is deprecated in php 7.2 and removed in php 8.0.
+    if (version_compare(PHP_VERSION, '8.0.0') < 0 && ini_get('mbstring.func_overload') & 2) {
+        throw new UnexpectedValueException(
+            'Overloading of string functions using mbstring.func_overload ' .
+            'is not supported by phpseclib.'
+        );
     }
-}
-
-function dd()
-{
-    d(func_get_args());
-
-    die();
 }
