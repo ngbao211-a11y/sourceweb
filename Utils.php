@@ -1,384 +1,257 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace GuzzleHttp;
+/*
+ * This file is part of the Monolog package.
+ *
+ * (c) Jordi Boggiano <j.boggiano@seld.be>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-use GuzzleHttp\Exception\InvalidArgumentException;
-use GuzzleHttp\Handler\CurlHandler;
-use GuzzleHttp\Handler\CurlMultiHandler;
-use GuzzleHttp\Handler\Proxy;
-use GuzzleHttp\Handler\StreamHandler;
-use Psr\Http\Message\UriInterface;
+namespace Monolog;
 
 final class Utils
 {
-    /**
-     * Debug function used to describe the provided value type and class.
-     *
-     * @param mixed $input
-     *
-     * @return string Returns a string containing the type of the variable and
-     *                if a class is provided, the class name.
-     */
-    public static function describeType($input): string
-    {
-        switch (\gettype($input)) {
-            case 'object':
-                return 'object('.\get_class($input).')';
-            case 'array':
-                return 'array('.\count($input).')';
-            default:
-                \ob_start();
-                \var_dump($input);
-                // normalize float vs double
-                /** @var string $varDumpContent */
-                $varDumpContent = \ob_get_clean();
+    const DEFAULT_JSON_FLAGS = JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION | JSON_INVALID_UTF8_SUBSTITUTE | JSON_PARTIAL_OUTPUT_ON_ERROR;
 
-                return \str_replace('double(', 'float(', \rtrim($varDumpContent));
+    public static function getClass(object $object): string
+    {
+        $class = \get_class($object);
+
+        if (false === ($pos = strpos($class, "@anonymous\0"))) {
+            return $class;
         }
+
+        if (false === ($parent = get_parent_class($class))) {
+            return substr($class, 0, $pos + 10);
+        }
+
+        return $parent . '@anonymous';
+    }
+
+    public static function substr(string $string, int $start, ?int $length = null): string
+    {
+        if (\extension_loaded('mbstring')) {
+            return mb_strcut($string, $start, $length);
+        }
+
+        return substr($string, $start, (null === $length) ? \strlen($string) : $length);
     }
 
     /**
-     * Parses an array of header lines into an associative array of headers.
+     * Makes sure if a relative path is passed in it is turned into an absolute path
      *
-     * @param iterable $lines Header lines array of strings in the following
-     *                        format: "Name: Value"
+     * @param string $streamUrl stream URL or path without protocol
      */
-    public static function headersFromLines(iterable $lines): array
+    public static function canonicalizePath(string $streamUrl): string
     {
-        $headers = [];
-
-        foreach ($lines as $line) {
-            $parts = \explode(':', $line, 2);
-            $headers[\trim($parts[0])][] = isset($parts[1]) ? \trim($parts[1]) : null;
+        $prefix = '';
+        if ('file://' === substr($streamUrl, 0, 7)) {
+            $streamUrl = substr($streamUrl, 7);
+            $prefix = 'file://';
         }
 
-        return $headers;
+        // other type of stream, not supported
+        if (false !== strpos($streamUrl, '://')) {
+            return $streamUrl;
+        }
+
+        // already absolute
+        if (substr($streamUrl, 0, 1) === '/' || substr($streamUrl, 1, 1) === ':' || substr($streamUrl, 0, 2) === '\\\\') {
+            return $prefix.$streamUrl;
+        }
+
+        $streamUrl = getcwd() . '/' . $streamUrl;
+
+        return $prefix.$streamUrl;
     }
 
     /**
-     * Returns a debug stream based on the provided variable.
+     * Return the JSON representation of a value
      *
-     * @param mixed $value Optional value
-     *
-     * @return resource
+     * @param  mixed             $data
+     * @param  int               $encodeFlags  flags to pass to json encode, defaults to DEFAULT_JSON_FLAGS
+     * @param  bool              $ignoreErrors whether to ignore encoding errors or to throw on error, when ignored and the encoding fails, "null" is returned which is valid json for null
+     * @throws \RuntimeException if encoding fails and errors are not ignored
+     * @return string            when errors are ignored and the encoding fails, "null" is returned which is valid json for null
      */
-    public static function debugResource($value = null)
+    public static function jsonEncode($data, ?int $encodeFlags = null, bool $ignoreErrors = false): string
     {
-        if (\is_resource($value)) {
-            return $value;
-        }
-        if (\defined('STDOUT')) {
-            return \STDOUT;
+        if (null === $encodeFlags) {
+            $encodeFlags = self::DEFAULT_JSON_FLAGS;
         }
 
-        return Psr7\Utils::tryFopen('php://output', 'w');
-    }
-
-    /**
-     * Chooses and creates a default handler to use based on the environment.
-     *
-     * The returned handler is not wrapped by any default middlewares.
-     *
-     * @return callable(\Psr\Http\Message\RequestInterface, array): \GuzzleHttp\Promise\PromiseInterface Returns the best handler for the given system.
-     *
-     * @throws \RuntimeException if no viable Handler is available.
-     */
-    public static function chooseHandler(): callable
-    {
-        $handler = null;
-
-        if (\defined('CURLOPT_CUSTOMREQUEST') && \function_exists('curl_version') && version_compare(curl_version()['version'], '7.21.2') >= 0) {
-            if (\function_exists('curl_multi_exec') && \function_exists('curl_exec')) {
-                $handler = Proxy::wrapSync(new CurlMultiHandler(), new CurlHandler());
-            } elseif (\function_exists('curl_exec')) {
-                $handler = new CurlHandler();
-            } elseif (\function_exists('curl_multi_exec')) {
-                $handler = new CurlMultiHandler();
-            }
-        }
-
-        if (\ini_get('allow_url_fopen')) {
-            $handler = $handler
-                ? Proxy::wrapStreaming($handler, new StreamHandler())
-                : new StreamHandler();
-        } elseif (!$handler) {
-            throw new \RuntimeException('GuzzleHttp requires cURL, the allow_url_fopen ini setting, or a custom HTTP handler.');
-        }
-
-        return $handler;
-    }
-
-    /**
-     * Get the default User-Agent string to use with Guzzle.
-     */
-    public static function defaultUserAgent(): string
-    {
-        return sprintf('GuzzleHttp/%d', ClientInterface::MAJOR_VERSION);
-    }
-
-    /**
-     * Returns the default cacert bundle for the current system.
-     *
-     * First, the openssl.cafile and curl.cainfo php.ini settings are checked.
-     * If those settings are not configured, then the common locations for
-     * bundles found on Red Hat, CentOS, Fedora, Ubuntu, Debian, FreeBSD, OS X
-     * and Windows are checked. If any of these file locations are found on
-     * disk, they will be utilized.
-     *
-     * Note: the result of this function is cached for subsequent calls.
-     *
-     * @throws \RuntimeException if no bundle can be found.
-     *
-     * @deprecated Utils::defaultCaBundle will be removed in guzzlehttp/guzzle:8.0. This method is not needed in PHP 5.6+.
-     */
-    public static function defaultCaBundle(): string
-    {
-        static $cached = null;
-        static $cafiles = [
-            // Red Hat, CentOS, Fedora (provided by the ca-certificates package)
-            '/etc/pki/tls/certs/ca-bundle.crt',
-            // Ubuntu, Debian (provided by the ca-certificates package)
-            '/etc/ssl/certs/ca-certificates.crt',
-            // FreeBSD (provided by the ca_root_nss package)
-            '/usr/local/share/certs/ca-root-nss.crt',
-            // SLES 12 (provided by the ca-certificates package)
-            '/var/lib/ca-certificates/ca-bundle.pem',
-            // OS X provided by homebrew (using the default path)
-            '/usr/local/etc/openssl/cert.pem',
-            // Google app engine
-            '/etc/ca-certificates.crt',
-            // Windows?
-            'C:\\windows\\system32\\curl-ca-bundle.crt',
-            'C:\\windows\\curl-ca-bundle.crt',
-        ];
-
-        if ($cached) {
-            return $cached;
-        }
-
-        if ($ca = \ini_get('openssl.cafile')) {
-            return $cached = $ca;
-        }
-
-        if ($ca = \ini_get('curl.cainfo')) {
-            return $cached = $ca;
-        }
-
-        foreach ($cafiles as $filename) {
-            if (\file_exists($filename)) {
-                return $cached = $filename;
-            }
-        }
-
-        throw new \RuntimeException(
-            <<< EOT
-No system CA bundle could be found in any of the the common system locations.
-PHP versions earlier than 5.6 are not properly configured to use the system's
-CA bundle by default. In order to verify peer certificates, you will need to
-supply the path on disk to a certificate bundle to the 'verify' request
-option: https://docs.guzzlephp.org/en/latest/request-options.html#verify. If
-you do not need a specific certificate bundle, then Mozilla provides a commonly
-used CA bundle which can be downloaded here (provided by the maintainer of
-cURL): https://curl.haxx.se/ca/cacert.pem. Once you have a CA bundle available
-on disk, you can set the 'openssl.cafile' PHP ini setting to point to the path
-to the file, allowing you to omit the 'verify' request option. See
-https://curl.haxx.se/docs/sslcerts.html for more information.
-EOT
-        );
-    }
-
-    /**
-     * Creates an associative array of lowercase header names to the actual
-     * header casing.
-     */
-    public static function normalizeHeaderKeys(array $headers): array
-    {
-        $result = [];
-        foreach (\array_keys($headers) as $key) {
-            $result[\strtolower($key)] = $key;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Returns true if the provided host matches any of the no proxy areas.
-     *
-     * This method will strip a port from the host if it is present. Each pattern
-     * can be matched with an exact match (e.g., "foo.com" == "foo.com") or a
-     * partial match: (e.g., "foo.com" == "baz.foo.com" and ".foo.com" ==
-     * "baz.foo.com", but ".foo.com" != "foo.com").
-     *
-     * Areas are matched in the following cases:
-     * 1. "*" (without quotes) always matches any hosts.
-     * 2. An exact match.
-     * 3. The area starts with "." and the area is the last part of the host. e.g.
-     *    '.mit.edu' will match any host that ends with '.mit.edu'.
-     *
-     * @param string   $host         Host to check against the patterns.
-     * @param string[] $noProxyArray An array of host patterns.
-     *
-     * @throws InvalidArgumentException
-     */
-    public static function isHostInNoProxy(string $host, array $noProxyArray): bool
-    {
-        if (\strlen($host) === 0) {
-            throw new InvalidArgumentException('Empty host provided');
-        }
-
-        // Strip port if present.
-        [$host] = \explode(':', $host, 2);
-
-        foreach ($noProxyArray as $area) {
-            // Always match on wildcards.
-            if ($area === '*') {
-                return true;
+        if ($ignoreErrors) {
+            $json = @json_encode($data, $encodeFlags);
+            if (false === $json) {
+                return 'null';
             }
 
-            if (empty($area)) {
-                // Don't match on empty values.
-                continue;
-            }
-
-            if ($area === $host) {
-                // Exact matches.
-                return true;
-            }
-            // Special match if the area when prefixed with ".". Remove any
-            // existing leading "." and add a new leading ".".
-            $area = '.'.\ltrim($area, '.');
-            if (\substr($host, -\strlen($area)) === $area) {
-                return true;
-            }
+            return $json;
         }
 
-        return false;
-    }
-
-    /**
-     * Wrapper for json_decode that throws when an error occurs.
-     *
-     * @param string $json    JSON data to parse
-     * @param bool   $assoc   When true, returned objects will be converted
-     *                        into associative arrays.
-     * @param int    $depth   User specified recursion depth.
-     * @param int    $options Bitmask of JSON decode options.
-     *
-     * @return object|array|string|int|float|bool|null
-     *
-     * @throws InvalidArgumentException if the JSON cannot be decoded.
-     *
-     * @see https://www.php.net/manual/en/function.json-decode.php
-     */
-    public static function jsonDecode(string $json, bool $assoc = false, int $depth = 512, int $options = 0)
-    {
-        $data = \json_decode($json, $assoc, $depth, $options);
-        if (\JSON_ERROR_NONE !== \json_last_error()) {
-            throw new InvalidArgumentException('json_decode error: '.\json_last_error_msg());
+        $json = json_encode($data, $encodeFlags);
+        if (false === $json) {
+            $json = self::handleJsonError(json_last_error(), $data);
         }
 
-        return $data;
-    }
-
-    /**
-     * Wrapper for JSON encoding that throws when an error occurs.
-     *
-     * @param mixed $value   The value being encoded
-     * @param int   $options JSON encode option bitmask
-     * @param int   $depth   Set the maximum depth. Must be greater than zero.
-     *
-     * @throws InvalidArgumentException if the JSON cannot be encoded.
-     *
-     * @see https://www.php.net/manual/en/function.json-encode.php
-     */
-    public static function jsonEncode($value, int $options = 0, int $depth = 512): string
-    {
-        $json = \json_encode($value, $options, $depth);
-        if (\JSON_ERROR_NONE !== \json_last_error()) {
-            throw new InvalidArgumentException('json_encode error: '.\json_last_error_msg());
-        }
-
-        /** @var string */
         return $json;
     }
 
     /**
-     * Wrapper for the hrtime() or microtime() functions
-     * (depending on the PHP version, one of the two is used)
+     * Handle a json_encode failure.
      *
-     * @return float UNIX timestamp
+     * If the failure is due to invalid string encoding, try to clean the
+     * input and encode again. If the second encoding attempt fails, the
+     * initial error is not encoding related or the input can't be cleaned then
+     * raise a descriptive exception.
      *
-     * @internal
+     * @param  int               $code        return code of json_last_error function
+     * @param  mixed             $data        data that was meant to be encoded
+     * @param  int               $encodeFlags flags to pass to json encode, defaults to JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION
+     * @throws \RuntimeException if failure can't be corrected
+     * @return string            JSON encoded data after error correction
      */
-    public static function currentTime(): float
+    public static function handleJsonError(int $code, $data, ?int $encodeFlags = null): string
     {
-        return (float) \function_exists('hrtime') ? \hrtime(true) / 1e9 : \microtime(true);
+        if ($code !== JSON_ERROR_UTF8) {
+            self::throwEncodeError($code, $data);
+        }
+
+        if (\is_string($data)) {
+            self::detectAndCleanUtf8($data);
+        } elseif (\is_array($data)) {
+            array_walk_recursive($data, ['Monolog\Utils', 'detectAndCleanUtf8']);
+        } else {
+            self::throwEncodeError($code, $data);
+        }
+
+        if (null === $encodeFlags) {
+            $encodeFlags = self::DEFAULT_JSON_FLAGS;
+        }
+
+        $json = json_encode($data, $encodeFlags);
+
+        if ($json === false) {
+            self::throwEncodeError(json_last_error(), $data);
+        }
+
+        return $json;
     }
 
     /**
-     * @throws InvalidArgumentException
+     * Throws an exception according to a given code with a customized message
      *
-     * @internal
+     * @param  int               $code return code of json_last_error function
+     * @param  mixed             $data data that was meant to be encoded
+     * @throws \RuntimeException
      */
-    public static function idnUriConvert(UriInterface $uri, int $options = 0): UriInterface
+    private static function throwEncodeError(int $code, $data): never
     {
-        if ($uri->getHost()) {
-            $asciiHost = self::idnToAsci($uri->getHost(), $options, $info);
-            if ($asciiHost === false) {
-                $errorBitSet = $info['errors'] ?? 0;
+        $msg = match ($code) {
+            JSON_ERROR_DEPTH => 'Maximum stack depth exceeded',
+            JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
+            JSON_ERROR_CTRL_CHAR => 'Unexpected control character found',
+            JSON_ERROR_UTF8 => 'Malformed UTF-8 characters, possibly incorrectly encoded',
+            default => 'Unknown error',
+        };
 
-                $errorConstants = array_filter(array_keys(get_defined_constants()), static function (string $name): bool {
-                    return substr($name, 0, 11) === 'IDNA_ERROR_';
-                });
+        throw new \RuntimeException('JSON encoding failed: '.$msg.'. Encoding: '.var_export($data, true));
+    }
 
-                $errors = [];
-                foreach ($errorConstants as $errorConstant) {
-                    if ($errorBitSet & constant($errorConstant)) {
-                        $errors[] = $errorConstant;
-                    }
-                }
+    /**
+     * Detect invalid UTF-8 string characters and convert to valid UTF-8.
+     *
+     * Valid UTF-8 input will be left unmodified, but strings containing
+     * invalid UTF-8 codepoints will be reencoded as UTF-8 with an assumed
+     * original encoding of ISO-8859-15. This conversion may result in
+     * incorrect output if the actual encoding was not ISO-8859-15, but it
+     * will be clean UTF-8 output and will not rely on expensive and fragile
+     * detection algorithms.
+     *
+     * Function converts the input in place in the passed variable so that it
+     * can be used as a callback for array_walk_recursive.
+     *
+     * @param mixed $data Input to check and convert if needed, passed by ref
+     */
+    private static function detectAndCleanUtf8(&$data): void
+    {
+        if (\is_string($data) && preg_match('//u', $data) !== 1) {
+            $data = preg_replace_callback(
+                '/[\x80-\xFF]+/',
+                function (array $m): string {
+                    return \function_exists('mb_convert_encoding')
+                        ? mb_convert_encoding($m[0], 'UTF-8', 'ISO-8859-1')
+                        : (\function_exists('utf8_encode') ? utf8_encode($m[0]) : '');
+                },
+                $data
+            );
+            if (!\is_string($data)) {
+                $pcreErrorCode = preg_last_error();
 
-                $errorMessage = 'IDN conversion failed';
-                if ($errors) {
-                    $errorMessage .= ' (errors: '.implode(', ', $errors).')';
-                }
-
-                throw new InvalidArgumentException($errorMessage);
+                throw new \RuntimeException('Failed to preg_replace_callback: ' . $pcreErrorCode . ' / ' . preg_last_error_msg());
             }
-            if ($uri->getHost() !== $asciiHost) {
-                // Replace URI only if the ASCII version is different
-                $uri = $uri->withHost($asciiHost);
+            $data = str_replace(
+                ['¤', '¦', '¨', '´', '¸', '¼', '½', '¾'],
+                ['€', 'Š', 'š', 'Ž', 'ž', 'Œ', 'œ', 'Ÿ'],
+                $data
+            );
+        }
+    }
+
+    /**
+     * Converts a string with a valid 'memory_limit' format, to bytes.
+     *
+     * @param  string|false $val
+     * @return int|false    Returns an integer representing bytes. Returns FALSE in case of error.
+     */
+    public static function expandIniShorthandBytes($val)
+    {
+        if (!\is_string($val)) {
+            return false;
+        }
+
+        // support -1
+        if ((int) $val < 0) {
+            return (int) $val;
+        }
+
+        if (!(bool) preg_match('/^\s*(?<val>\d+)(?:\.\d+)?\s*(?<unit>[gmk]?)\s*$/i', $val, $match)) {
+            return false;
+        }
+
+        $val = (int) $match['val'];
+        switch (strtolower($match['unit'])) {
+            case 'g':
+                $val *= 1024;
+                // no break
+            case 'm':
+                $val *= 1024;
+                // no break
+            case 'k':
+                $val *= 1024;
+        }
+
+        return $val;
+    }
+
+    public static function getRecordMessageForException(LogRecord $record): string
+    {
+        $context = '';
+        $extra = '';
+
+        try {
+            if (\count($record->context) > 0) {
+                $context = "\nContext: " . json_encode($record->context, JSON_THROW_ON_ERROR);
             }
+            if (\count($record->extra) > 0) {
+                $extra = "\nExtra: " . json_encode($record->extra, JSON_THROW_ON_ERROR);
+            }
+        } catch (\Throwable $e) {
+            // noop
         }
 
-        return $uri;
-    }
-
-    /**
-     * @internal
-     */
-    public static function getenv(string $name): ?string
-    {
-        if (isset($_SERVER[$name])) {
-            return (string) $_SERVER[$name];
-        }
-
-        if (\PHP_SAPI === 'cli' && ($value = \getenv($name)) !== false && $value !== null) {
-            return (string) $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * @return string|false
-     */
-    private static function idnToAsci(string $domain, int $options, ?array &$info = [])
-    {
-        if (\function_exists('idn_to_ascii') && \defined('INTL_IDNA_VARIANT_UTS46')) {
-            return \idn_to_ascii($domain, $options, \INTL_IDNA_VARIANT_UTS46, $info);
-        }
-
-        throw new \Error('ext-idn or symfony/polyfill-intl-idn not loaded or too old');
+        return "\nThe exception occurred while attempting to log: " . $record->message . $context . $extra;
     }
 }
