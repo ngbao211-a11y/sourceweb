@@ -1,493 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Unlock Link</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #0a0a0f;
-  --card: #12121a;
-  --surface: #1a1a26;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.04);
-  --accent: #7c6cfc;
-  --text: #eeeef5;
-  --muted: #5a5a78;
-  --muted2: #3a3a52;
-  --danger: #ff4d6d;
-  --warn: #f5a623;
-  --success: #00e5a0;
-}
-
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  min-height: 100vh;
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  font-family: 'DM Sans', sans-serif;
-  color: var(--text);
-  overflow-x: hidden;
-}
-
-.glow-top {
-  position: fixed;
-  width: 600px; height: 300px;
-  top: -150px; left: 50%; transform: translateX(-50%);
-  background: radial-gradient(ellipse, rgba(124,108,252,0.1) 0%, transparent 70%);
-  pointer-events: none; z-index: 0;
-}
-.glow-bottom {
-  position: fixed;
-  width: 400px; height: 300px;
-  bottom: -100px; right: -50px;
-  background: radial-gradient(ellipse, rgba(0,229,160,0.06) 0%, transparent 70%);
-  pointer-events: none; z-index: 0;
-}
-
-.container {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 480px;
-  animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Single card ── */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
-}
-
-.card-topline {
-  height: 2px;
-  background: linear-gradient(90deg, transparent 5%, var(--accent) 40%, rgba(0,229,160,0.6) 70%, transparent 95%);
-}
-
-/* ── Header ── */
-.card-header {
-  padding: 26px 24px 22px;
-  text-align: center;
-  border-bottom: 1px solid var(--border2);
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(124,108,252,0.1);
-  border: 1px solid rgba(124,108,252,0.2);
-  color: #a89dfc;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  padding: 5px 13px;
-  border-radius: 50px;
-  margin-bottom: 13px;
-}
-.badge-dot {
-  width: 5px; height: 5px;
-  background: var(--accent);
-  border-radius: 50%;
-  animation: blink 2s ease infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-h1 {
-  font-family: 'Syne', sans-serif;
-  font-size: 25px;
-  font-weight: 800;
-  color: var(--text);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 7px;
-}
-.desc {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-/* ── Body: steps + progress ── */
-.card-body {
-  padding: 20px 20px 20px;
-}
-
-.section-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-
-/* Task buttons */
-.sub-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 13px 14px;
-  border-radius: 11px;
-  margin-bottom: 7px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  width: 100%;
-  text-align: left;
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-.sub-btn:last-child { margin-bottom: 0; }
-.sub-btn:not(.done):hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
-.sub-btn:active { transform: scale(0.98) !important; }
-.sub-btn.done {
-  background: var(--surface) !important;
-  border-color: rgba(0,229,160,0.1) !important;
-  cursor: default; opacity: 0.7;
-}
-
-.btn-left { display: flex; align-items: center; gap: 11px; }
-.btn-icon {
-  width: 35px; height: 35px;
-  border-radius: 9px;
-  background: #ff0000;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; flex-shrink: 0; transition: background 0.2s;
-}
-.sub-btn.done .btn-icon { background: rgba(0,229,160,0.08); }
-
-.btn-label { display: flex; flex-direction: column; }
-.btn-name { font-size: 13.5px; font-weight: 600; color: var(--text); line-height: 1.3; }
-.btn-hint { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
-
-.status { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-.spinner {
-  width: 18px; height: 18px;
-  border: 2px solid rgba(255,255,255,0.15);
-  border-top-color: rgba(255,255,255,0.7);
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.check {
-  width: 24px; height: 24px;
-  background: var(--success);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  animation: pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
-}
-@keyframes pop { from{opacity:0;transform:scale(0.3)} to{opacity:1;transform:scale(1)} }
-.check::before {
-  content:''; width:5px; height:9px;
-  border-right: 2px solid #0a0a0f;
-  border-bottom: 2px solid #0a0a0f;
-  transform: rotate(45deg) translate(-1px,-1px);
-}
-
-/* Progress */
-.progress-wrap { display: none; padding-top: 14px; }
-.progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.progress-label { font-size: 10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); }
-.progress-count { font-size: 12px; font-weight: 600; color: var(--text); }
-.progress-count em { color: var(--muted); font-style: normal; font-weight: 400; }
-.bar { width:100%; height:5px; background:var(--muted2); border-radius:50px; overflow:hidden; }
-.fill { height:100%; width:0%; border-radius:50px; background:var(--danger); transition: width 0.5s ease, background 0.4s ease; }
-
-/* ── Divider ── */
-.divider { height: 1px; background: var(--border2); }
-
-/* ── Footer: unlock always here ── */
-.card-footer {
-  padding: 16px 20px 20px;
-}
-
-.unlock-btn {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  padding: 15px 17px;
-  border-radius: 13px;
-  text-decoration: none;
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-}
-
-.unlock-btn.locked {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  pointer-events: none; cursor: default;
-}
-
-.unlock-btn.active {
-  background: linear-gradient(135deg, #00d48e, #00a86e);
-  border: 1px solid transparent;
-  pointer-events: auto; cursor: pointer;
-  box-shadow: 0 6px 28px rgba(0,212,142,0.28);
-  animation: unlockReveal 0.5s cubic-bezier(0.22,1,0.36,1) both;
-}
-@keyframes unlockReveal { from{opacity:0.5;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
-.unlock-btn.active:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(0,212,142,0.38); }
-.unlock-btn.active:active { transform: scale(0.98); }
-
-.unlock-btn.active::after {
-  content: '';
-  position: absolute; top:0; left:-100%;
-  width: 60%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-  animation: shimmer 2.5s ease 0.6s infinite;
-}
-@keyframes shimmer { to { left: 160%; } }
-
-.lock-icon-wrap {
-  width: 42px; height: 42px; border-radius: 11px;
-  background: rgba(255,255,255,0.07);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; flex-shrink: 0; transition: background 0.3s;
-}
-.unlock-btn.active .lock-icon-wrap { background: rgba(0,0,0,0.12); }
-
-.unlock-info { flex: 1; min-width: 0; }
-.unlock-name {
-  font-size: 14px; font-weight: 700; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.unlock-btn.active .unlock-name { color: #012a1c; }
-.unlock-subdesc { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-.unlock-btn.active .unlock-subdesc { color: rgba(0,30,20,0.5); }
-
-.unlock-arrow { color: var(--muted); font-size: 17px; flex-shrink: 0; transition: transform 0.2s, color 0.2s; }
-.unlock-btn.active .unlock-arrow { color: rgba(0,30,20,0.4); }
-.unlock-btn.active:hover .unlock-arrow { transform: translateX(4px); }
-
-/* Misc */
-.loading { color:var(--muted); font-size:13.5px; padding:20px 0; text-align:center; }
-.no-channels {
-  background: rgba(0,229,160,0.05);
-  border: 1px solid rgba(0,229,160,0.13);
-  border-radius: 10px; padding: 14px 16px;
-  color: var(--success); font-size: 13px; font-weight: 500; text-align: center;
-}
-
-@media (max-width: 480px) {
-  h1 { font-size: 22px; }
-  .card-header { padding: 20px 18px 18px; }
-  .card-body { padding: 16px; }
-  .card-footer { padding: 14px 16px 18px; }
-}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="SourceWeb — nền tảng quản lý sản phẩm số và đơn hàng." />
+  <title>SourceWeb — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#10233f;--muted:#718099;--line:#e5eaf1;--paper:#f7f9fc;--white:#fff;--blue:#246bfe;--blue-soft:#edf3ff;--green:#21b879;--orange:#f59e0b;--red:#ee5b6b;--shadow:0 16px 42px rgba(16,35,63,.08)}
+    *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif} button{font:inherit;cursor:pointer} a{color:inherit;text-decoration:none}
+    .app{display:flex;min-height:100vh}.sidebar{width:256px;background:var(--white);border-right:1px solid var(--line);padding:25px 16px;display:flex;flex-direction:column;flex-shrink:0}.brand{display:flex;align-items:center;gap:11px;padding:0 14px 32px;font-family:'Space Grotesk';font-weight:700;font-size:21px}.brand-mark{width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,#246bfe,#64a2ff);display:grid;place-items:center;color:#fff;font-size:18px;box-shadow:0 8px 18px rgba(36,107,254,.24)}.section-label{padding:0 14px 10px;color:#a1adbf;text-transform:uppercase;font-size:10px;font-weight:700;letter-spacing:.13em}.nav{display:grid;gap:5px}.nav a{display:flex;align-items:center;gap:12px;border-radius:10px;padding:12px 14px;color:#7a8799;font-size:14px;font-weight:600;transition:.2s}.nav a:hover,.nav a.active{background:var(--blue-soft);color:var(--blue)}.nav-icon{font-size:17px;width:19px;text-align:center}.side-bottom{margin-top:auto;border-top:1px solid var(--line);padding-top:18px}.help{background:#f2f7ff;border-radius:14px;padding:15px;margin:0 4px 15px}.help strong{font-size:13px;display:block;margin-bottom:5px}.help span{font-size:12px;color:var(--muted);line-height:1.5}.profile{display:flex;align-items:center;gap:10px;padding:7px 8px}.avatar{width:34px;height:34px;border-radius:50%;background:#d9e6ff;color:var(--blue);display:grid;place-items:center;font-weight:700;font-size:12px}.profile-name{font-weight:700;font-size:13px}.profile-role{font-size:11px;color:var(--muted);margin-top:2px}
+    .main{flex:1;min-width:0}.topbar{height:76px;padding:0 38px;background:rgba(255,255,255,.82);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:20px}.crumb{color:var(--muted);font-size:13px}.crumb b{color:var(--ink)}.top-actions{display:flex;align-items:center;gap:12px}.icon-btn{border:1px solid var(--line);background:#fff;color:var(--muted);width:38px;height:38px;border-radius:10px;font-size:17px}.primary{background:var(--blue);color:#fff;border:0;border-radius:9px;padding:11px 17px;font-weight:700;box-shadow:0 7px 17px rgba(36,107,254,.2)}.content{padding:34px 38px 48px;max-width:1440px;margin:auto}.intro{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:28px}.eyebrow{color:var(--blue);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}.intro h1{font-family:'Space Grotesk';font-size:31px;line-height:1.15;margin:0 0 8px;letter-spacing:-.04em}.intro p{margin:0;color:var(--muted);font-size:14px}.date{font-size:13px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px 13px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:17px;margin-bottom:22px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:21px;box-shadow:0 4px 16px rgba(16,35,63,.025)}.stat-head{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;font-weight:600}.stat-icon{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:16px}.stat h2{font-family:'Space Grotesk';font-size:27px;margin:18px 0 9px;letter-spacing:-.04em}.trend{font-size:12px;color:var(--green);font-weight:700}.trend span{color:var(--muted);font-weight:500;margin-left:5px}.blue{background:#edf3ff;color:#246bfe}.green{background:#eafaf3;color:#21b879}.orange{background:#fff6e3;color:#f59e0b}.red{background:#fff0f2;color:#ee5b6b}
+    .grid{display:grid;grid-template-columns:1.45fr 1fr;gap:22px}.panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 16px rgba(16,35,63,.025);overflow:hidden}.panel-head{padding:20px 22px 16px;display:flex;align-items:center;justify-content:space-between}.panel-head h3{font-family:'Space Grotesk';font-size:16px;margin:0}.panel-head a{font-size:12px;color:var(--blue);font-weight:700}.chart-wrap{padding:2px 20px 20px}.chart{height:220px;display:flex;align-items:flex-end;gap:15px;padding:20px 6px 0;border-bottom:1px solid var(--line);background:repeating-linear-gradient(to bottom,transparent 0,transparent 54px,#eef2f6 55px)}.bar-group{flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:5px}.bar{width:18px;border-radius:5px 5px 0 0;background:#b7d0ff}.bar.alt{background:var(--blue)}.months{display:flex;justify-content:space-between;padding:11px 4px 0;color:#a0abba;font-size:11px}.activity{padding:0 22px 16px}.activity-row{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid #f0f2f6}.activity-row:last-child{border:0}.activity-dot{width:8px;height:8px;margin:5px 2px 0;border-radius:50%;background:var(--blue);flex-shrink:0}.activity-text{font-size:13px;line-height:1.4}.activity-text b{font-weight:700}.activity-time{color:#a0abba;font-size:11px;margin-top:3px}.quick{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 22px 22px}.quick a{border:1px solid var(--line);border-radius:11px;padding:15px;color:var(--ink);transition:.2s}.quick a:hover{border-color:#b3c9f9;transform:translateY(-2px)}.quick-icon{font-size:18px;margin-bottom:9px}.quick strong{display:block;font-size:13px}.quick span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+    @media(max-width:1000px){.sidebar{width:76px;padding:22px 10px}.brand{padding:0 10px 32px}.brand span,.section-label,.nav a span,.help,.profile-name,.profile-role{display:none}.nav a{justify-content:center;padding:13px}.profile{justify-content:center}.stats{grid-template-columns:repeat(2,1fr)}.content{padding:28px 22px}.topbar{padding:0 22px}}
+    @media(max-width:680px){.topbar{height:65px}.top-actions .primary{padding:9px 11px;font-size:12px}.content{padding:24px 15px}.intro{display:block}.date{display:inline-block;margin-top:15px}.intro h1{font-size:27px}.stats{gap:10px}.stat{padding:16px}.stat h2{font-size:23px}.grid{grid-template-columns:1fr}.chart{gap:5px;height:180px}.bar{width:12px}.sidebar{display:none}.crumb{font-size:12px}}
+  </style>
 </head>
 <body>
-<div class="glow-top"></div>
-<div class="glow-bottom"></div>
-
-<div class="container">
-  <div class="card">
-    <div class="card-topline"></div>
-
-    <!-- Header -->
-    <div class="card-header">
-      <div class="badge"><span class="badge-dot"></span> Yêu cầu xác minh</div>
-      <h1 id="page-title">Unlock Link</h1>
-      <p class="desc" id="page-desc">Hoàn thành các bước để mở khóa link</p>
+<div class="app">
+  <aside class="sidebar" aria-label="Điều hướng chính">
+    <a class="brand" href="#"><span class="brand-mark">S</span><span>SourceWeb</span></a>
+    <div class="section-label">Tổng quan</div>
+    <nav class="nav">
+      <a class="active" href="#dashboard"><span class="nav-icon">⌂</span><span>Dashboard</span></a>
+      <a href="#products"><span class="nav-icon">▦</span><span>Sản phẩm</span></a>
+      <a href="#orders"><span class="nav-icon">◫</span><span>Đơn hàng</span></a>
+      <a href="#customers"><span class="nav-icon">♙</span><span>Khách hàng</span></a>
+    </nav>
+    <div class="section-label" style="margin-top:28px">Quản trị</div>
+    <nav class="nav">
+      <a href="#analytics"><span class="nav-icon">◒</span><span>Phân tích</span></a>
+      <a href="#settings"><span class="nav-icon">⚙</span><span>Cài đặt</span></a>
+    </nav>
+    <div class="side-bottom"><div class="help"><strong>Cần hỗ trợ?</strong><span>Đội ngũ SourceWeb luôn sẵn sàng giúp bạn.</span></div><div class="profile"><div class="avatar">AD</div><div><div class="profile-name">Admin SourceWeb</div><div class="profile-role">Quản trị viên</div></div></div></div>
+  </aside>
+  <main class="main" id="dashboard">
+    <header class="topbar"><div class="crumb">Trang chủ <span>/</span> <b>Dashboard</b></div><div class="top-actions"><button class="icon-btn" aria-label="Thông báo">♢</button><button class="primary" onclick="alert('Tính năng thêm sản phẩm đang được mở!')">+ Thêm sản phẩm</button></div></header>
+    <div class="content">
+      <section class="intro"><div><div class="eyebrow">Chào buổi sáng, Admin</div><h1>Tổng quan hoạt động</h1><p>Theo dõi hiệu suất kinh doanh của bạn trong một nơi.</p></div><div class="date">◷ 01 — 30 Tháng 06, 2024</div></section>
+      <section class="stats" aria-label="Chỉ số tổng quan">
+        <article class="stat"><div class="stat-head"><span>Doanh thu</span><span class="stat-icon blue">↗</span></div><h2>₫128.4M</h2><div class="trend">↑ 18.2% <span>so với tháng trước</span></div></article>
+        <article class="stat"><div class="stat-head"><span>Đơn hàng</span><span class="stat-icon orange">◫</span></div><h2>1,284</h2><div class="trend">↑ 12.5% <span>so với tháng trước</span></div></article>
+        <article class="stat"><div class="stat-head"><span>Khách hàng</span><span class="stat-icon green">♙</span></div><h2>8,492</h2><div class="trend">↑ 8.4% <span>so với tháng trước</span></div></article>
+        <article class="stat"><div class="stat-head"><span>Tỷ lệ chuyển đổi</span><span class="stat-icon red">◉</span></div><h2>6.24%</h2><div class="trend">↑ 2.1% <span>so với tháng trước</span></div></article>
+      </section>
+      <section class="grid">
+        <article class="panel"><div class="panel-head"><h3>Doanh thu theo thời gian</h3><a href="#analytics">Xem báo cáo →</a></div><div class="chart-wrap"><div class="chart" aria-label="Biểu đồ doanh thu 6 tháng"><div class="bar-group"><i class="bar" style="height:42%"></i><i class="bar alt" style="height:57%"></i></div><div class="bar-group"><i class="bar" style="height:48%"></i><i class="bar alt" style="height:69%"></i></div><div class="bar-group"><i class="bar" style="height:56%"></i><i class="bar alt" style="height:64%"></i></div><div class="bar-group"><i class="bar" style="height:51%"></i><i class="bar alt" style="height:78%"></i></div><div class="bar-group"><i class="bar" style="height:63%"></i><i class="bar alt" style="height:83%"></i></div><div class="bar-group"><i class="bar" style="height:70%"></i><i class="bar alt" style="height:94%"></i></div></div><div class="months"><span>Tháng 1</span><span>Tháng 2</span><span>Tháng 3</span><span>Tháng 4</span><span>Tháng 5</span><span>Tháng 6</span></div></div></article>
+        <article class="panel"><div class="panel-head"><h3>Hoạt động gần đây</h3><a href="#orders">Xem tất cả</a></div><div class="activity"><div class="activity-row"><i class="activity-dot"></i><div class="activity-text"><b>Đơn hàng #SW-10248</b> đã hoàn tất<div class="activity-time">2 phút trước · ₫1,250,000</div></div></div><div class="activity-row"><i class="activity-dot" style="background:var(--green)"></i><div class="activity-text"><b>Nguyễn Minh Anh</b> vừa đăng ký tài khoản<div class="activity-time">15 phút trước</div></div></div><div class="activity-row"><i class="activity-dot" style="background:var(--orange)"></i><div class="activity-text"><b>Sản phẩm mới</b> được thêm vào kho<div class="activity-time">42 phút trước · Bộ Template Pro</div></div></div><div class="activity-row"><i class="activity-dot" style="background:var(--red)"></i><div class="activity-text"><b>Đơn hàng #SW-10241</b> cần được xử lý<div class="activity-time">1 giờ trước · Chờ thanh toán</div></div></div></div></article>
+      </section>
+      <section class="panel" style="margin-top:22px"><div class="panel-head"><h3>Truy cập nhanh</h3></div><div class="quick"><a href="#products"><div class="quick-icon">▦</div><strong>Quản lý sản phẩm</strong><span>Thêm, sửa và kiểm kê sản phẩm</span></a><a href="#orders"><div class="quick-icon">◫</div><strong>Xử lý đơn hàng</strong><span>Theo dõi trạng thái giao dịch</span></a><a href="#customers"><div class="quick-icon">♙</div><strong>Danh sách khách hàng</strong><span>Quản lý thông tin khách hàng</span></a><a href="#settings"><div class="quick-icon">⚙</div><strong>Cấu hình hệ thống</strong><span>Tùy chỉnh SourceWeb của bạn</span></a></div></section>
     </div>
-
-    <!-- Body: steps + progress -->
-    <div class="card-body">
-      <div class="section-label" id="steps-label">Các bước cần hoàn thành</div>
-      <div id="buttons-wrap"><div class="loading">⏳ Đang tải...</div></div>
-
-      <div class="progress-wrap" id="progress-wrap">
-        <div class="progress-row">
-          <span class="progress-label">Tiến độ</span>
-          <span class="progress-count"><span id="count">0</span><em> / </em><span id="total">0</span></span>
-        </div>
-        <div class="bar"><div class="fill" id="bar"></div></div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <!-- Footer: unlock button always pinned at bottom -->
-    <div class="card-footer">
-      <div id="links-wrap"></div>
-    </div>
-
-  </div>
+  </main>
 </div>
-
-<script>
-const API = './api.php?path=';
-let completed = 0, totalRequired = 0, taskDelay = 5000, unlocked = false;
-const urlParams = new URLSearchParams(location.search);
-const linkId = urlParams.get('link') ? parseInt(urlParams.get('link')) : null;
-
-async function init() {
-  try {
-    const [settings, links] = await Promise.all([
-      fetch(API + 'settings').then(r => r.json()),
-      fetch(API + 'links&active=1').then(r => r.json()),
-    ]);
-
-    if (settings.page_title) document.title = settings.page_title;
-    document.getElementById('page-title').textContent = settings.page_title || 'Unlock Link';
-    document.getElementById('page-desc').textContent  = settings.page_desc  || '';
-    if (settings.task_delay) taskDelay = parseInt(settings.task_delay) * 1000;
-
-    const btnColor = settings.btn_color || '#ff0000';
-
-    let activeLink = null;
-    if (linkId) activeLink = links.find(l => l.id == linkId) || null;
-    if (!activeLink && links.length > 0) activeLink = links[0];
-
-    if (!activeLink) {
-      document.getElementById('buttons-wrap').innerHTML =
-        '<div class="loading" style="color:#ff4d6d">⚠ Không có link nào đang hoạt động.</div>';
-      renderUnlockTarget({ id: 0, display_name: '—', target_url: '#' });
-      return;
-    }
-
-    if (activeLink.description)
-      document.getElementById('page-desc').textContent = activeLink.description;
-
-    renderUnlockTarget(activeLink);
-
-    const channels = await fetch(API + `links/${activeLink.id}/channels`).then(r => r.json());
-
-    if (!channels.length) {
-      document.getElementById('buttons-wrap').innerHTML =
-        '<div class="no-channels">✅ Không cần hoàn thành bước nào!</div>';
-      document.getElementById('steps-label').style.display = 'none';
-      activateLinks(activeLink);
-    } else {
-      renderChannels(channels, btnColor, activeLink.id);
-    }
-
-    track('pageview', activeLink.id);
-  } catch(e) {
-    document.getElementById('buttons-wrap').innerHTML =
-      '<div class="loading" style="color:#ff4d6d">⚠ Không kết nối được API.<br><small>Chạy trên server PHP có MySQL.</small></div>';
-    renderUnlockTarget({ id: 0, display_name: 'Chưa sẵn sàng', target_url: '#' });
-  }
-}
-
-function renderChannels(channels, btnColor, lid) {
-  const required = channels.filter(c => c.is_required == 1);
-  totalRequired = required.length;
-
-  if (totalRequired > 0) {
-    document.getElementById('progress-wrap').style.display = '';
-    document.getElementById('total').textContent = totalRequired;
-  }
-
-  const wrap = document.getElementById('buttons-wrap');
-  wrap.innerHTML = channels.map(ch => `
-    <button class="sub-btn" id="btn-${ch.id}"
-        style="background:${esc(btnColor)}15;border-color:${esc(btnColor)}40"
-        onclick="startTask(this,${ch.id},'${esc(ch.url)}',${ch.is_required},${lid})">
-      <div class="btn-left">
-        <div class="btn-icon">▶</div>
-        <div class="btn-label">
-          <span class="btn-name">${esc(ch.name)}</span>
-          <span class="btn-hint">${ch.is_required==1?'🔴 Bắt buộc':'⚪ Tùy chọn'} · Nhấn để thực hiện</span>
-        </div>
-      </div>
-      <div class="status" id="st-${ch.id}"></div>
-    </button>`).join('');
-
-  if (totalRequired === 0) activateLinks(document.getElementById('links-wrap')._link);
-}
-
-function renderUnlockTarget(link) {
-  const wrap = document.getElementById('links-wrap');
-  wrap._link = link;
-  wrap.innerHTML = `
-    <a href="${esc(link.target_url)}" id="unlock-link-${link.id}" class="unlock-btn locked"
-       onclick="onUnlockClick(event,${link.id||0})" target="_blank">
-      <div class="lock-icon-wrap"><span id="lock-icon-${link.id}">🔒</span></div>
-      <div class="unlock-info">
-        <div class="unlock-name" id="unlock-name-${link.id}">${esc(link.display_name)}</div>
-        <div class="unlock-subdesc" id="unlock-sub-${link.id}">Hoàn thành các bước để mở khóa</div>
-      </div>
-      <span class="unlock-arrow">→</span>
-    </a>`;
-}
-
-function onUnlockClick(e, lid) {
-  if (!unlocked) { e.preventDefault(); return; }
-  track('unlock', lid);
-}
-
-function activateLinks(link) {
-  if (!link) link = document.getElementById('links-wrap')._link;
-  if (!link) return;
-  const el = document.getElementById('unlock-link-' + link.id);
-  if (el) {
-    el.classList.remove('locked');
-    el.classList.add('active');
-    document.getElementById('lock-icon-' + link.id).textContent = '🔓';
-    document.getElementById('unlock-name-' + link.id).textContent = link.unlocked_text || link.display_name;
-    document.getElementById('unlock-sub-' + link.id).textContent = 'Nhấn để truy cập ngay';
-  }
-  unlocked = true;
-}
-
-function startTask(btn, channelId, link, isRequired, lid) {
-  if (btn.classList.contains('done')) return;
-  const st = document.getElementById('st-' + channelId);
-  st.innerHTML = '<div class="spinner"></div>';
-  track('click_channel', lid, channelId);
-  setTimeout(() => window.open(link, '_blank'), 800);
-  setTimeout(() => {
-    btn.classList.add('done');
-    btn.style.background = '';
-    btn.style.borderColor = '';
-    st.innerHTML = '<div class="check"></div>';
-    if (isRequired) {
-      completed++;
-      document.getElementById('count').textContent = completed;
-      const pct = Math.round(completed / totalRequired * 100);
-      const bar = document.getElementById('bar');
-      bar.style.width = pct + '%';
-      if (pct < 50)       bar.style.background = 'var(--danger)';
-      else if (pct < 100) bar.style.background = 'var(--warn)';
-      else                bar.style.background = 'var(--success)';
-      if (completed >= totalRequired)
-        activateLinks(document.getElementById('links-wrap')._link);
-    }
-  }, taskDelay);
-}
-
-function track(event, lId, channelId) {
-  fetch(API + 'track', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ event, link_id: lId||null, channel_id: channelId||null })
-  }).catch(()=>{});
-}
-
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-init();
-</script>
 </body>
 </html>
