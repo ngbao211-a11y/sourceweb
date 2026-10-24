@@ -1,39 +1,39 @@
-CKEditor 4
-==========
+# QR Code generator
 
-Copyright (c) 2003-2021, CKSource - Frederico Knabben. All rights reserved.
-https://ckeditor.com - See LICENSE.md for license information.
+[![PHP CI](https://github.com/Bacon/BaconQrCode/actions/workflows/ci.yml/badge.svg)](https://github.com/Bacon/BaconQrCode/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/Bacon/BaconQrCode/branch/master/graph/badge.svg?token=rD0HcAiEEx)](https://codecov.io/gh/Bacon/BaconQrCode)
+[![Latest Stable Version](https://poser.pugx.org/bacon/bacon-qr-code/v/stable)](https://packagist.org/packages/bacon/bacon-qr-code)
+[![Total Downloads](https://poser.pugx.org/bacon/bacon-qr-code/downloads)](https://packagist.org/packages/bacon/bacon-qr-code)
+[![License](https://poser.pugx.org/bacon/bacon-qr-code/license)](https://packagist.org/packages/bacon/bacon-qr-code)
 
-CKEditor 4 is a text editor to be used inside web pages. It's not a replacement
-for desktop text editors like Word or OpenOffice, but a component to be used as
-part of web applications and websites.
 
-## Documentation
+## Introduction
+BaconQrCode is a port of QR code portion of the ZXing library. It currently
+only features the encoder part, but could later receive the decoder part as
+well.
 
-The full editor documentation is available online at the following address:
-https://ckeditor.com/docs/
+As the Reed Solomon codec implementation of the ZXing library performs quite
+slow in PHP, it was exchanged with the implementation by Phil Karn.
 
-## Installation
 
-Installing CKEditor is an easy task. Just follow these simple steps:
+## Example usage
+```php
+use BaconQrCode\Renderer\ImageRenderer;
+use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
+use BaconQrCode\Renderer\RendererStyle\RendererStyle;
+use BaconQrCode\Writer;
 
- 1. **Download** the latest version from the CKEditor website:
-    https://ckeditor.com. You should have already completed this step, but be
-    sure you have the very latest version.
- 2. **Extract** (decompress) the downloaded file into the root of your website.
+$renderer = new ImageRenderer(
+    new RendererStyle(400),
+    new ImagickImageBackEnd()
+);
+$writer = new Writer($renderer);
+$writer->writeFile('Hello World!', 'qrcode.png');
+```
 
-**Note:** CKEditor is by default installed in the `ckeditor` folder. You can
-place the files in whichever you want though.
+## Available image renderer back ends
+BaconQrCode comes with multiple back ends for rendering images. Currently included are the following:
 
-## Checking Your Installation
-
-The editor comes with a few sample pages that can be used to verify that
-installation proceeded properly. Take a look at the `samples` directory.
-
-To test your installation, just call the following page at your website:
-
-	http://<your site>/<CKEditor installation path>/samples/index.html
-
-For example:
-
-	http://www.example.com/ckeditor/samples/index.html
+- `ImagickImageBackEnd`: renders raster images using the Imagick library
+- `SvgImageBackEnd`: renders SVG files using XMLWriter
+- `EpsImageBackEnd`: renders EPS files
