@@ -1,22 +1,23 @@
 <?php
-declare(strict_types = 1);
 
-namespace BaconQrCode\Renderer\Color;
+declare(strict_types=1);
+
+namespace Endroid\QrCode\Color;
 
 interface ColorInterface
 {
-    /**
-     * Converts the color to RGB.
-     */
-    public function toRgb() : Rgb;
+    public function getRed(): int;
 
-    /**
-     * Converts the color to CMYK.
-     */
-    public function toCmyk() : Cmyk;
+    public function getGreen(): int;
 
-    /**
-     * Converts the color to gray.
-     */
-    public function toGray() : Gray;
+    public function getBlue(): int;
+
+    public function getAlpha(): int;
+
+    public function getOpacity(): float;
+
+    public function getHex(): string;
+
+    /** @return array<string, int> */
+    public function toArray(): array;
 }

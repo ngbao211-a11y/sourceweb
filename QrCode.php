@@ -1,141 +1,126 @@
 <?php
-declare(strict_types = 1);
 
-namespace BaconQrCode\Encoder;
+declare(strict_types=1);
 
-use BaconQrCode\Common\ErrorCorrectionLevel;
-use BaconQrCode\Common\Mode;
-use BaconQrCode\Common\Version;
+namespace Endroid\QrCode;
 
-/**
- * QR code.
- */
-final class QrCode
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Color\ColorInterface;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\Encoding\EncodingInterface;
+
+final class QrCode implements QrCodeInterface
 {
-    /**
-     * Number of possible mask patterns.
-     */
-    public const NUM_MASK_PATTERNS = 8;
-
-    /**
-     * Mode of the QR code.
-     *
-     * @var Mode
-     */
-    private $mode;
-
-    /**
-     * EC level of the QR code.
-     *
-     * @var ErrorCorrectionLevel
-     */
-    private $errorCorrectionLevel;
-
-    /**
-     * Version of the QR code.
-     *
-     * @var Version
-     */
-    private $version;
-
-    /**
-     * Mask pattern of the QR code.
-     *
-     * @var int
-     */
-    private $maskPattern = -1;
-
-    /**
-     * Matrix of the QR code.
-     *
-     * @var ByteMatrix
-     */
-    private $matrix;
-
     public function __construct(
-        Mode $mode,
-        ErrorCorrectionLevel $errorCorrectionLevel,
-        Version $version,
-        int $maskPattern,
-        ByteMatrix $matrix
+        private string $data,
+        private EncodingInterface $encoding = new Encoding('UTF-8'),
+        private ErrorCorrectionLevel $errorCorrectionLevel = ErrorCorrectionLevel::Low,
+        private int $size = 300,
+        private int $margin = 10,
+        private RoundBlockSizeMode $roundBlockSizeMode = RoundBlockSizeMode::Margin,
+        private ColorInterface $foregroundColor = new Color(0, 0, 0),
+        private ColorInterface $backgroundColor = new Color(255, 255, 255)
     ) {
-        $this->mode = $mode;
-        $this->errorCorrectionLevel = $errorCorrectionLevel;
-        $this->version = $version;
-        $this->maskPattern = $maskPattern;
-        $this->matrix = $matrix;
     }
 
-    /**
-     * Gets the mode.
-     */
-    public function getMode() : Mode
+    public static function create(string $data): self
     {
-        return $this->mode;
+        return new self($data);
     }
 
-    /**
-     * Gets the EC level.
-     */
-    public function getErrorCorrectionLevel() : ErrorCorrectionLevel
+    public function getData(): string
+    {
+        return $this->data;
+    }
+
+    public function setData(string $data): self
+    {
+        $this->data = $data;
+
+        return $this;
+    }
+
+    public function getEncoding(): EncodingInterface
+    {
+        return $this->encoding;
+    }
+
+    public function setEncoding(Encoding $encoding): self
+    {
+        $this->encoding = $encoding;
+
+        return $this;
+    }
+
+    public function getErrorCorrectionLevel(): ErrorCorrectionLevel
     {
         return $this->errorCorrectionLevel;
     }
 
-    /**
-     * Gets the version.
-     */
-    public function getVersion() : Version
+    public function setErrorCorrectionLevel(ErrorCorrectionLevel $errorCorrectionLevel): self
     {
-        return $this->version;
+        $this->errorCorrectionLevel = $errorCorrectionLevel;
+
+        return $this;
     }
 
-    /**
-     * Gets the mask pattern.
-     */
-    public function getMaskPattern() : int
+    public function getSize(): int
     {
-        return $this->maskPattern;
+        return $this->size;
     }
 
-    /**
-     * Gets the matrix.
-     *
-     * @return ByteMatrix
-     */
-    public function getMatrix()
+    public function setSize(int $size): self
     {
-        return $this->matrix;
+        $this->size = $size;
+
+        return $this;
     }
 
-    /**
-     * Validates whether a mask pattern is valid.
-     */
-    public static function isValidMaskPattern(int $maskPattern) : bool
+    public function getMargin(): int
     {
-        return $maskPattern > 0 && $maskPattern < self::NUM_MASK_PATTERNS;
+        return $this->margin;
     }
 
-    /**
-     * Returns a string representation of the QR code.
-     */
-    public function __toString() : string
+    public function setMargin(int $margin): self
     {
-        $result = "<<\n"
-                . ' mode: ' . $this->mode . "\n"
-                . ' ecLevel: ' . $this->errorCorrectionLevel . "\n"
-                . ' version: ' . $this->version . "\n"
-                . ' maskPattern: ' . $this->maskPattern . "\n";
+        $this->margin = $margin;
 
-        if ($this->matrix === null) {
-            $result .= " matrix: null\n";
-        } else {
-            $result .= " matrix:\n";
-            $result .= $this->matrix;
-        }
+        return $this;
+    }
 
-        $result .= ">>\n";
+    public function getRoundBlockSizeMode(): RoundBlockSizeMode
+    {
+        return $this->roundBlockSizeMode;
+    }
 
-        return $result;
+    public function setRoundBlockSizeMode(RoundBlockSizeMode $roundBlockSizeMode): self
+    {
+        $this->roundBlockSizeMode = $roundBlockSizeMode;
+
+        return $this;
+    }
+
+    public function getForegroundColor(): ColorInterface
+    {
+        return $this->foregroundColor;
+    }
+
+    public function setForegroundColor(ColorInterface $foregroundColor): self
+    {
+        $this->foregroundColor = $foregroundColor;
+
+        return $this;
+    }
+
+    public function getBackgroundColor(): ColorInterface
+    {
+        return $this->backgroundColor;
+    }
+
+    public function setBackgroundColor(ColorInterface $backgroundColor): self
+    {
+        $this->backgroundColor = $backgroundColor;
+
+        return $this;
     }
 }

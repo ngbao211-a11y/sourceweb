@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace BaconQrCode\Exception;
+namespace DASPRiD\Enum\Exception;
 
 use Throwable;
 
