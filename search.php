@@ -1,6 +1,11 @@
 <?php
 
-require_once realpath($_SERVER['DOCUMENT_ROOT'] . '/libs/init.php');
+/**
+ * API Search - Live Search Suggestions
+ * Route: /api/search?q=keyword
+ */
+
+require_once realpath(__DIR__ . '/../../libs/init.php');
 
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');

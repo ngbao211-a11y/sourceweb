@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Unlock Link</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0c10;--sur:#111318;--sur2:#181c24;--bdr:#1e2330;--acc:#3b82f6;--red:#ef4444;--grn:#22c55e;--ylw:#eab308;--pur:#a855f7;--txt:#e2e8f0;--mut:#4b5563;--mut2:#6b7280;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 60% 40%,#1e2a4a,#0a0c10 70%);}
+.lbox{background:var(--sur);border:1px solid var(--bdr);border-radius:20px;padding:48px 40px;width:100%;max-width:360px;text-align:center;}
+.lbox .ico{font-size:44px;margin-bottom:14px;}
+.lbox h2{font-size:22px;font-weight:800;margin-bottom:6px;}
+.lbox p{font-size:13px;color:var(--mut2);margin-bottom:26px;}
+.lbox input{width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:12px 15px;font-size:14px;color:var(--txt);font-family:'Syne',sans-serif;outline:none;margin-bottom:11px;transition:.15s;}
+.lbox input:focus{border-color:var(--acc);}
+.lbtn{width:100%;padding:13px;background:var(--acc);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:.15s;}
+.lbtn:hover{background:#2563eb;transform:translateY(-1px);}
+.lerr{color:var(--red);font-size:13px;margin-top:10px;min-height:18px;}
+#app{display:none;}
+.sidebar{width:220px;background:var(--sur);border-right:1px solid var(--bdr);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;}
+.slogo{padding:20px 18px;border-bottom:1px solid var(--bdr);}
+.stag{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--acc);letter-spacing:3px;text-transform:uppercase;margin-bottom:3px;}
+.slogo h2{font-size:16px;font-weight:800;}
+.snav{padding:12px 10px;flex:1;}
+.ssec{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--mut);letter-spacing:2px;text-transform:uppercase;padding:10px 8px 5px;}
+.si{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--mut2);transition:.15s;margin-bottom:2px;border:1px solid transparent;}
+.si:hover{background:var(--sur2);color:var(--txt);}
+.si.active{background:rgba(59,130,246,.12);color:var(--acc);border-color:rgba(59,130,246,.2);}
+.sftr{padding:14px;border-top:1px solid var(--bdr);}
+.dbst{display:flex;align-items:center;gap:7px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:7px 11px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--grn);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.logoutb{display:flex;align-items:center;gap:7px;width:100%;margin-top:8px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:7px 11px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--red);cursor:pointer;font-weight:600;transition:.15s;}
+.logoutb:hover{background:rgba(239,68,68,.2);}
+.main{margin-left:220px;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.tbar-title{font-size:14px;font-weight:700;}
+.tbar-right{display:flex;gap:8px;}
+.content{padding:24px;flex:1;}
+.page{display:none;animation:fdIn .2s ease;}
+.page.active{display:block;}
+@keyframes fdIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;border:none;transition:.15s;}
+.btn-primary{background:var(--acc);color:white;}
+.btn-primary:hover{background:#2563eb;transform:translateY(-1px);}
+.btn-ghost{background:var(--sur2);color:var(--mut2);border:1px solid var(--bdr);}
+.btn-ghost:hover{color:var(--txt);}
+.btn-period{background:var(--sur2);color:var(--mut2);border:1px solid var(--bdr);padding:5px 12px;font-size:11px;}
+.btn-period.active{background:rgba(59,130,246,.15);color:var(--acc);border-color:rgba(59,130,246,.25);}
+.sg{display:grid;gap:14px;margin-bottom:24px;}
+.sg4{grid-template-columns:repeat(4,1fr);}
+.sg3{grid-template-columns:repeat(3,1fr);}
+.sg2{grid-template-columns:repeat(2,1fr);}
+.sc{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:18px;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc.bl::before{background:var(--acc);}
+.sc.gr::before{background:var(--grn);}
+.sc.yl::before{background:var(--ylw);}
+.sc.pu::before{background:var(--pur);}
+.sl{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--mut2);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.sv{font-size:28px;font-weight:800;}
+.sc.bl .sv{color:var(--acc);}
+.sc.gr .sv{color:var(--grn);}
+.sc.yl .sv{color:var(--ylw);}
+.sc.pu .sv{color:var(--pur);}
+.ssub{font-size:11px;color:var(--mut2);margin-top:3px;}
+.trend{font-size:11px;margin-top:5px;}
+.trend.up{color:var(--grn);}
+.trend.dn{color:var(--red);}
+.panel{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;margin-bottom:20px;overflow:hidden;}
+.phdr{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.pttl{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;}
+.bdg{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:20px;font-weight:600;}
+.bdg-bl{background:rgba(59,130,246,.15);color:var(--acc);}
+.bdg-pu{background:rgba(168,85,247,.15);color:var(--pur);}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--mut2);letter-spacing:1px;text-transform:uppercase;padding:10px 18px;border-bottom:1px solid var(--bdr);white-space:nowrap;}
+td{padding:11px 18px;font-size:13px;border-bottom:1px solid rgba(30,35,48,.5);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.015);}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--acc);}
+.ucell{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mut2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
+.acts{display:flex;gap:5px;flex-wrap:wrap;}
+.ab{padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'Syne',sans-serif;transition:.15s;}
+.ae{background:rgba(59,130,246,.13);color:var(--acc);}
+.ae:hover{background:rgba(59,130,246,.28);}
+.ad{background:rgba(239,68,68,.13);color:var(--red);}
+.ad:hover{background:rgba(239,68,68,.28);}
+.ac{background:rgba(168,85,247,.13);color:var(--pur);}
+.ac:hover{background:rgba(168,85,247,.28);}
+.ag{background:rgba(34,197,94,.13);color:var(--grn);}
+.ag:hover{background:rgba(34,197,94,.28);}
+.tog{display:inline-flex;align-items:center;gap:5px;cursor:pointer;}
+.tt{width:30px;height:17px;border-radius:9px;background:var(--mut);position:relative;transition:.2s;}
+.tt.on{background:var(--grn);}
+.tth{position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:white;transition:.2s;}
+.tt.on .tth{left:15px;}
+.rate{display:inline-block;padding:2px 7px;border-radius:6px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700;}
+.rhi{background:rgba(34,197,94,.15);color:var(--grn);}
+.rmd{background:rgba(234,179,8,.15);color:var(--ylw);}
+.rlo{background:rgba(107,114,128,.15);color:var(--mut2);}
+.bar-mini-wrap{padding:16px 20px;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bar-lbl{font-size:12px;color:var(--txt);min-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bar-track{flex:1;height:8px;background:var(--sur2);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;background:var(--acc);transition:.4s;}
+.bar-val{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--mut2);min-width:32px;text-align:right;}
+.chart-wrap{padding:20px;position:relative;}
+.chart-legend{display:flex;gap:16px;flex-wrap:wrap;padding:0 20px 16px;font-size:12px;}
+.leg{display:flex;align-items:center;gap:6px;color:var(--mut2);}
+.leg-dot{width:10px;height:10px;border-radius:50%;}
+/* CHANNEL TAGS */
+.ch-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.ch-tag{background:rgba(59,130,246,.15);color:var(--acc);border:1px solid rgba(59,130,246,.2);border-radius:6px;padding:2px 8px;font-size:11px;font-family:'JetBrains Mono',monospace;}
+.ch-tag.none{background:rgba(107,114,128,.1);color:var(--mut2);border-color:rgba(107,114,128,.2);}
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.ov.open{display:flex;}
+.modal{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;width:100%;max-width:520px;overflow:hidden;animation:mIn .2s ease;max-height:90vh;display:flex;flex-direction:column;}
+@keyframes mIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.mh{padding:18px 22px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.mh h3{font-size:15px;font-weight:700;}
+.mc{width:28px;height:28px;border-radius:7px;background:var(--sur2);border:1px solid var(--bdr);color:var(--mut2);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;}
+.mc:hover{color:var(--txt);}
+.mb{padding:22px;overflow-y:auto;}
+.mf{padding:14px 22px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0;}
+.fg{margin-bottom:14px;}
+label{display:block;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--mut2);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+input,select{width:100%;background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:9px 13px;font-size:13px;font-family:'Syne',sans-serif;color:var(--txt);outline:none;transition:.15s;}
+input:focus,select:focus{border-color:var(--acc);}
+select option{background:var(--sur2);}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.sg-form{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+/* CHANNEL CHECKBOXES */
+.ch-list{display:flex;flex-direction:column;gap:6px;background:var(--sur2);border:1px solid var(--bdr);border-radius:8px;padding:10px;max-height:180px;overflow-y:auto;}
+.ch-item{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:6px;cursor:pointer;transition:.15s;}
+.ch-item:hover{background:rgba(255,255,255,.04);}
+.ch-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--acc);cursor:pointer;flex-shrink:0;}
+.ch-item-name{font-size:13px;font-weight:600;flex:1;}
+.ch-item-url{font-size:11px;color:var(--mut2);font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px;}
+.ch-empty{font-size:13px;color:var(--mut2);padding:8px;text-align:center;}
+/* TOAST */
+.toasts{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:7px;}
+.toast{background:var(--sur2);border:1px solid var(--bdr);border-left:3px solid var(--grn);border-radius:9px;padding:10px 14px;font-size:13px;font-weight:600;min-width:200px;animation:tIn .2s ease;}
+.toast.err{border-left-color:var(--red);}
+@keyframes tIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.empty{text-align:center;padding:40px;color:var(--mut2);}
+.empty-ico{font-size:36px;margin-bottom:10px;opacity:.4;}
+.bspin-wrap{text-align:center;padding:32px;color:var(--mut2);}
+.bspin{width:32px;height:32px;border:3px solid var(--bdr);border-top-color:var(--acc);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:900px){.sg4{grid-template-columns:1fr 1fr;}.sg-form{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="lbox">
+    <div class="ico">🔐</div>
+    <h2>Admin Panel</h2>
+    <p>Quản lý kênh YouTube & link unlock</p>
+    <input type="text" placeholder="Username" value="admin" readonly>
+    <input type="password" id="lpass" placeholder="Mật khẩu" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lbtn" onclick="doLogin()">Đăng nhập →</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+
+<div id="app">
+  <aside class="sidebar">
+    <div class="slogo"><div class="stag">Admin Panel</div><h2>UnlockLink</h2></div>
+    <nav class="snav">
+      <div class="ssec">Dashboard</div>
+      <div class="si active" onclick="nav('stats',this)"><span>📊</span> Thống kê</div>
+      <div class="ssec">Quản lý</div>
+      <div class="si" onclick="nav('channels',this)"><span>▶</span> Kênh YouTube</div>
+      <div class="si" onclick="nav('links',this)"><span>🔗</span> Link Unlock</div>
+      <div class="ssec">Hệ thống</div>
+      <div class="si" onclick="nav('settings',this)"><span>⚙</span> Cài đặt</div>
+    </nav>
+    <div class="sftr">
+      <div class="dbst"><div class="dot"></div>MySQL Connected</div>
+      <button class="logoutb" onclick="logout()">⬅ Đăng xuất</button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tbar-title" id="page-title">📊 Thống kê</div>
+      <div class="tbar-right">
+        <a href="index.html" target="_blank" class="btn btn-ghost">👁 Xem trang</a>
+        <button class="btn btn-primary" id="add-btn" onclick="openAdd()" style="display:none">+ Thêm</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- STATS -->
+      <div class="page active" id="page-stats">
+        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">
+          <button class="btn btn-period active" onclick="setPeriod(7,this)">7 ngày</button>
+          <button class="btn btn-period" onclick="setPeriod(30,this)">30 ngày</button>
+          <button class="btn btn-period" onclick="setPeriod(90,this)">90 ngày</button>
+          <button class="btn btn-ghost" onclick="loadStats()" style="font-size:11px;padding:5px 12px">⟳ Làm mới</button>
+        </div>
+        <div id="stats-body"><div class="bspin-wrap"><div class="bspin"></div>Đang tải thống kê...</div></div>
+      </div>
+
+      <!-- CHANNELS -->
+      <div class="page" id="page-channels">
+        <div class="sg sg3" id="ch-kpi"></div>
+        <div class="panel">
+          <div class="phdr">
+            <div class="pttl">▶ Kênh YouTube <span class="bdg bdg-bl" id="ch-badge">0</span></div>
+          </div>
+          <div id="ch-body"><div class="bspin-wrap"><div class="bspin"></div></div></div>
+        </div>
+      </div>
+
+      <!-- LINKS -->
+      <div class="page" id="page-links">
+        <div class="panel">
+          <div class="phdr">
+            <div class="pttl">🔗 Link Unlock <span class="bdg bdg-pu" id="lk-badge">0</span></div>
+          </div>
+          <div id="lk-body"><div class="bspin-wrap"><div class="bspin"></div></div></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
+        <div class="panel">
+          <div class="phdr"><div class="pttl">⚙ Cài đặt chung</div></div>
+          <div style="padding:22px"><div id="sett-body"><div class="bspin-wrap"><div class="bspin"></div></div></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL KÊNH -->
+<div class="ov" id="m-channel">
+  <div class="modal">
+    <div class="mh"><h3 id="mch-t">▶ Thêm kênh</h3><button class="mc" onclick="closeM('channel')">✕</button></div>
+    <div class="mb">
+      <input type="hidden" id="fch-id">
+      <div class="fg"><label>Tên hiển thị *</label><input id="fch-name" placeholder="Đăng ký kênh YouTube"></div>
+      <div class="fg"><label>URL YouTube *</label><input id="fch-url" placeholder="https://www.youtube.com/@..."></div>
+      <div class="r2">
+        <div class="fg"><label>Thứ tự</label><input type="number" id="fch-ord" value="1" min="1"></div>
+        <div class="fg"><label>Bắt buộc sub</label><select id="fch-req"><option value="1">Có</option><option value="0">Không</option></select></div>
+      </div>
+      <div class="fg"><label>Trạng thái</label><select id="fch-act"><option value="1">Hiển thị</option><option value="0">Ẩn</option></select></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeM('channel')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveCh()">💾 Lưu kênh</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LINK -->
+<div class="ov" id="m-link">
+  <div class="modal">
+    <div class="mh"><h3 id="mlk-t">🔗 Thêm link</h3><button class="mc" onclick="closeM('link')">✕</button></div>
+    <div class="mb">
+      <input type="hidden" id="flk-id">
+      <div class="fg"><label>Tên hiển thị *</label><input id="flk-name" placeholder="Link Mod Menu v2.0"></div>
+      <div class="fg"><label>Mô tả ngắn</label><input id="flk-desc" placeholder="File APK, cập nhật..."></div>
+      <div class="fg"><label>URL đích *</label><input id="flk-url" placeholder="https://..."></div>
+      <div class="fg"><label>Text nút khi khóa</label><input id="flk-locked" value="🔒 Đăng ký để tiếp tục"></div>
+      <div class="fg"><label>Text nút khi mở</label><input id="flk-unlocked" value="🔓 Truy cập link gốc"></div>
+      <div class="r2">
+        <div class="fg"><label>Thứ tự</label><input type="number" id="flk-ord" value="1" min="1"></div>
+        <div class="fg"><label>Trạng thái</label><select id="flk-act"><option value="1">Hiển thị</option><option value="0">Ẩn</option></select></div>
+      </div>
+      <!-- KÊNH RIÊNG CHO LINK NÀY -->
+      <div class="fg">
+        <label>🎯 Kênh yêu cầu cho link này</label>
+        <div class="ch-list" id="flk-channels">
+          <div class="ch-empty">Đang tải kênh...</div>
+        </div>
+        <div style="font-size:11px;color:var(--mut2);margin-top:5px">Chọn kênh user phải sub trước khi mở link này. Bỏ trống = không cần sub.</div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeM('link')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveLk()">💾 Lưu link</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GIÁN KÊNH NHANH -->
+<div class="ov" id="m-assign">
+  <div class="modal">
+    <div class="mh"><h3 id="mas-t">🎯 Gán kênh cho link</h3><button class="mc" onclick="closeM('assign')">✕</button></div>
+    <div class="mb">
+      <input type="hidden" id="fas-link-id">
+      <div style="font-size:13px;color:var(--mut2);margin-bottom:14px">Chọn kênh YouTube mà user phải subscribe trước khi mở link này:</div>
+      <div class="ch-list" id="fas-channels">
+        <div class="ch-empty">Đang tải...</div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost" onclick="closeM('assign')">Hủy</button>
+      <button class="btn btn-primary" onclick="saveAssign()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const API = './api.php?path=';
+
+let TOKEN    = localStorage.getItem('ul_token') || '';
+let curPage  = 'stats';
+let period   = 7;
+let chartInst = null;
+let allChannels = []; // cache danh sách kênh
+
+// ── HELPERS ──────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n) { return Number(n||0).toLocaleString('vi-VN'); }
+function rateBadge(r) {
+  const n = parseFloat(r||0);
+  const c = n>=30?'rhi':n>=10?'rmd':'rlo';
+  return `<span class="rate ${c}">${r||0}%</span>`;
+}
+function spin(el) { document.getElementById(el).innerHTML='<div class="bspin-wrap"><div class="bspin"></div></div>'; }
+function toast(msg, type='ok') {
+  const el = document.createElement('div');
+  el.className = 'toast'+(type==='err'?' err':'');
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>el.remove(), 3000);
+}
+
+// ── AUTH ──────────────────────────────
+async function doLogin() {
+  const pass = document.getElementById('lpass').value;
+  const errEl = document.getElementById('lerr');
+  errEl.textContent = '';
+  if (!pass) { errEl.textContent = 'Nhập mật khẩu!'; return; }
+  try {
+    const r = await api('login','POST',{password:pass});
+    TOKEN = r.token;
+    localStorage.setItem('ul_token', TOKEN);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadPage('stats');
+  } catch(e) { errEl.textContent = '❌ '+(e.message||'Sai mật khẩu'); }
+}
+function logout() {
+  TOKEN=''; localStorage.removeItem('ul_token');
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('lpass').value='';
+}
+if (TOKEN) {
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  setTimeout(()=>loadPage('stats'),0);
+}
+
+// ── FETCH ─────────────────────────────
+async function api(path, method='GET', body=null) {
+  const opts = { method, headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN} };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API+path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error||'API Error');
+  return data;
+}
+
+// ── NAV ───────────────────────────────
+function nav(page, el) {
+  document.querySelectorAll('.si').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('page-'+page).classList.add('active');
+  curPage = page;
+  const titles = {stats:'📊 Thống kê truy cập',channels:'▶ Kênh YouTube',links:'🔗 Link Unlock',settings:'⚙ Cài đặt'};
+  const adds   = {channels:'+ Thêm kênh',links:'+ Thêm link'};
+  document.getElementById('page-title').textContent = titles[page]||page;
+  const ab = document.getElementById('add-btn');
+  if (adds[page]) { ab.style.display=''; ab.textContent=adds[page]; } else ab.style.display='none';
+  loadPage(page);
+}
+function loadPage(p) {
+  if(p==='stats')    loadStats();
+  else if(p==='channels') loadChannels();
+  else if(p==='links')    loadLinks();
+  else if(p==='settings') loadSettings();
+}
+
+// ── LOAD ALL CHANNELS (cache) ──────────
+async function loadAllChannels() {
+  if (allChannels.length) return allChannels;
+  allChannels = await api('channels');
+  return allChannels;
+}
+
+// ── RENDER CHANNEL CHECKBOXES ──────────
+function renderChCheckboxes(containerId, selectedIds=[]) {
+  const wrap = document.getElementById(containerId);
+  if (!allChannels.length) {
+    wrap.innerHTML = '<div class="ch-empty">Chưa có kênh nào. Thêm kênh trước!</div>';
+    return;
+  }
+  wrap.innerHTML = allChannels.map(c => `
+    <label class="ch-item">
+      <input type="checkbox" value="${c.id}" ${selectedIds.includes(String(c.id))||selectedIds.includes(c.id)?'checked':''}>
+      <div style="flex:1;min-width:0">
+        <div class="ch-item-name">${esc(c.name)}</div>
+        <div class="ch-item-url">${esc(c.url)}</div>
+      </div>
+    </label>`).join('');
+}
+
+function getCheckedIds(containerId) {
+  return [...document.getElementById(containerId).querySelectorAll('input[type=checkbox]:checked')].map(i=>parseInt(i.value));
+}
+
+// ══ STATS ═════════════════════════════
+function setPeriod(p, el) {
+  period = p;
+  document.querySelectorAll('.btn-period').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  loadStats();
+}
+
+async function loadStats() {
+  spin('stats-body');
+  try {
+    const s = await api('stats&period='+period);
+    const trend = s.yesterday>0 ? Math.round((s.today-s.yesterday)/s.yesterday*100) : (s.today>0?100:0);
+    const trendHtml = trend>=0
+      ? `<div class="trend up">▲ +${trend}% so với hôm qua</div>`
+      : `<div class="trend dn">▼ ${trend}% so với hôm qua</div>`;
+
+    document.getElementById('stats-body').innerHTML = `
+      <div class="sg sg4" style="margin-bottom:20px">
+        <div class="sc bl"><div class="sl">Lượt xem hôm nay</div><div class="sv">${fmt(s.today)}</div>${trendHtml}</div>
+        <div class="sc gr"><div class="sl">Tổng lượt xem</div><div class="sv">${fmt(s.total_views)}</div><div class="ssub">Tất cả thời gian</div></div>
+        <div class="sc pu"><div class="sl">Lượt mở khóa</div><div class="sv">${fmt(s.total_unlocks)}</div><div class="ssub">Tỉ lệ: ${s.total_views>0?Math.round(s.total_unlocks/s.total_views*100):0}%</div></div>
+        <div class="sc yl"><div class="sl">IP duy nhất</div><div class="sv">${fmt(s.uniq_ips)}</div><div class="ssub">Tổng khách</div></div>
+      </div>
+      <div class="sg sg2" style="margin-bottom:20px">
+        <div class="panel">
+          <div class="phdr"><div class="pttl">📈 Biểu đồ ${period} ngày</div></div>
+          <div class="chart-wrap" style="height:240px"><canvas id="main-chart"></canvas></div>
+          <div class="chart-legend">
+            <div class="leg"><div class="leg-dot" style="background:#3b82f6"></div>Lượt xem</div>
+            <div class="leg"><div class="leg-dot" style="background:#22c55e"></div>Mở khóa</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="phdr"><div class="pttl">▶ Top kênh được click</div></div>
+          <div class="bar-mini-wrap">
+            ${!s.top_channels.length
+              ? '<div class="empty" style="padding:20px"><div class="empty-ico">📺</div><p>Chưa có dữ liệu click</p></div>'
+              : topBars(s.top_channels)}
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="phdr"><div class="pttl">🔗 Thống kê từng link unlock</div></div>
+        <div class="tw"><table>
+          <thead><tr><th>Link</th><th>Số kênh</th><th>Lượt xem</th><th>Mở khóa</th><th>Tỉ lệ</th></tr></thead>
+          <tbody>${!s.link_stats.length
+            ? '<tr><td colspan="5" style="text-align:center;color:var(--mut2);padding:20px">Chưa có dữ liệu</td></tr>'
+            : s.link_stats.map(l=>`<tr>
+                <td style="font-weight:600">${esc(l.display_name)}</td>
+                <td><span class="mono">${l.channel_count||0} kênh</span></td>
+                <td><span class="mono">${fmt(l.views||0)}</span></td>
+                <td><span class="mono" style="color:var(--grn)">${fmt(l.unlocks||0)}</span></td>
+                <td>${rateBadge(l.rate)}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table></div>
+      </div>`;
+    drawChart(s.daily);
+  } catch(e) {
+    document.getElementById('stats-body').innerHTML =
+      `<div class="empty"><div class="empty-ico">⚠</div><p style="color:var(--red)">${esc(e.message)}</p></div>`;
+  }
+}
+
+function topBars(channels) {
+  const max = Math.max(...channels.map(c=>c.clicks));
+  return channels.map(c=>`
+    <div class="bar-row">
+      <div class="bar-lbl" title="${esc(c.name)}">${esc(c.name)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(c.clicks/max*100)}%"></div></div>
+      <div class="bar-val">${fmt(c.clicks)}</div>
+    </div>`).join('');
+}
+
+function drawChart(daily) {
+  const ctx = document.getElementById('main-chart');
+  if (!ctx) return;
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  const map = {};
+  (daily||[]).forEach(d=>map[d.day]=d);
+  const labels=[], views=[], unlocks=[];
+  for (let i=period-1; i>=0; i--) {
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    labels.push(d.getDate()+'/'+(d.getMonth()+1));
+    views.push(map[key]?.views||0);
+    unlocks.push(map[key]?.unlocks||0);
+  }
+  chartInst = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[
+      {label:'Lượt xem',data:views,backgroundColor:'rgba(59,130,246,.6)',borderColor:'#3b82f6',borderWidth:1,borderRadius:4,order:2},
+      {label:'Mở khóa',data:unlocks,type:'line',backgroundColor:'rgba(34,197,94,.1)',borderColor:'#22c55e',borderWidth:2,pointBackgroundColor:'#22c55e',pointRadius:3,fill:true,tension:.35,order:1}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y}`}}},
+      scales:{
+        x:{grid:{color:'rgba(30,35,48,.8)'},ticks:{color:'#6b7280',font:{size:10}}},
+        y:{grid:{color:'rgba(30,35,48,.8)'},ticks:{color:'#6b7280',font:{size:10}},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ══ CHANNELS ══════════════════════════
+async function loadChannels() {
+  spin('ch-body');
+  try {
+    allChannels = await api('channels');
+    document.getElementById('ch-badge').textContent=allChannels.length;
+    document.getElementById('ch-kpi').innerHTML=`
+      <div class="sc bl"><div class="sl">Tổng kênh</div><div class="sv">${allChannels.length}</div></div>
+      <div class="sc gr"><div class="sl">Đang hiện</div><div class="sv">${allChannels.filter(c=>c.is_active==1).length}</div></div>
+      <div class="sc yl"><div class="sl">Bắt buộc sub</div><div class="sv">${allChannels.filter(c=>c.is_required==1).length}</div></div>`;
+    if (!allChannels.length) { document.getElementById('ch-body').innerHTML='<div class="empty"><div class="empty-ico">📺</div><p>Chưa có kênh nào</p></div>'; return; }
+    document.getElementById('ch-body').innerHTML=`<div class="tw"><table>
+      <thead><tr><th>ID</th><th>Tên kênh</th><th>URL</th><th>Thứ tự</th><th>Bắt buộc</th><th>Hiển thị</th><th>Thao tác</th></tr></thead>
+      <tbody>${[...allChannels].sort((a,b)=>a.sort_order-b.sort_order).map(c=>`<tr>
+        <td><span class="mono">#${c.id}</span></td>
+        <td style="font-weight:600;min-width:130px">${esc(c.name)}</td>
+        <td><span class="ucell" title="${esc(c.url)}">${esc(c.url)}</span></td>
+        <td><span class="mono">${c.sort_order}</span></td>
+        <td><div class="tog" onclick='tgCh(${c.id},"is_required",${c.is_required},${JSON.stringify(c)})'>
+          <div class="tt ${c.is_required==1?'on':''}"><div class="tth"></div></div>
+          <span style="font-size:11px;color:var(--mut2)">${c.is_required==1?'Có':'Không'}</span>
+        </div></td>
+        <td><div class="tog" onclick='tgCh(${c.id},"is_active",${c.is_active},${JSON.stringify(c)})'>
+          <div class="tt ${c.is_active==1?'on':''}"><div class="tth"></div></div>
+          <span style="font-size:11px;color:var(--mut2)">${c.is_active==1?'Hiện':'Ẩn'}</span>
+        </div></td>
+        <td><div class="acts">
+          <button class="ab ae" onclick='editCh(${JSON.stringify(c)})'>✏ Sửa</button>
+          <button class="ab ad" onclick="delCh(${c.id})">🗑</button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  } catch(e) { document.getElementById('ch-body').innerHTML=`<div class="empty"><p style="color:var(--red)">❌ ${esc(e.message)}</p></div>`; }
+}
+
+async function tgCh(id, field, cur, ch) {
+  try { await api('channels/'+id,'PUT',{...ch,[field]:cur==1?0:1}); allChannels=[]; loadChannels(); }
+  catch(e) { toast('❌ '+e.message,'err'); }
+}
+
+function openAdd() {
+  if (curPage==='channels') {
+    ['fch-id','fch-name','fch-url'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('fch-ord').value='1';
+    document.getElementById('fch-req').value='1';
+    document.getElementById('fch-act').value='1';
+    document.getElementById('mch-t').textContent='▶ Thêm kênh YouTube';
+    document.getElementById('m-channel').classList.add('open');
+  } else if (curPage==='links') {
+    ['flk-id','flk-name','flk-desc','flk-url'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('flk-locked').value='🔒 Đăng ký để tiếp tục';
+    document.getElementById('flk-unlocked').value='🔓 Truy cập link gốc';
+    document.getElementById('flk-ord').value='1';
+    document.getElementById('flk-act').value='1';
+    document.getElementById('mlk-t').textContent='🔗 Thêm Link Unlock';
+    loadAllChannels().then(()=>renderChCheckboxes('flk-channels',[]));
+    document.getElementById('m-link').classList.add('open');
+  }
+}
+
+function editCh(c) {
+  document.getElementById('fch-id').value=c.id;
+  document.getElementById('fch-name').value=c.name;
+  document.getElementById('fch-url').value=c.url;
+  document.getElementById('fch-ord').value=c.sort_order;
+  document.getElementById('fch-req').value=c.is_required;
+  document.getElementById('fch-act').value=c.is_active;
+  document.getElementById('mch-t').textContent='✏ Sửa kênh YouTube';
+  document.getElementById('m-channel').classList.add('open');
+}
+
+async function saveCh() {
+  const name=document.getElementById('fch-name').value.trim(), url=document.getElementById('fch-url').value.trim();
+  if(!name||!url){toast('Nhập đủ tên & URL!','err');return;}
+  const id=document.getElementById('fch-id').value;
+  const data={name,url,sort_order:parseInt(document.getElementById('fch-ord').value)||1,is_required:parseInt(document.getElementById('fch-req').value),is_active:parseInt(document.getElementById('fch-act').value)};
+  try {
+    if(id) await api('channels/'+id,'PUT',data); else await api('channels','POST',data);
+    allChannels=[];
+    closeM('channel'); loadChannels(); toast(id?'✅ Đã cập nhật!':'✅ Đã thêm kênh!');
+  } catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function delCh(id) {
+  if(!confirm('Xóa kênh này? Kênh sẽ bị xóa khỏi tất cả link đang gán.')) return;
+  try { await api('channels/'+id,'DELETE'); allChannels=[]; loadChannels(); toast('🗑 Đã xóa!'); }
+  catch(e){toast('❌ '+e.message,'err');}
+}
+
+// ══ LINKS ═════════════════════════════
+async function loadLinks() {
+  spin('lk-body');
+  try {
+    await loadAllChannels();
+    const lks = await api('links');
+    document.getElementById('lk-badge').textContent=lks.length;
+    if(!lks.length){document.getElementById('lk-body').innerHTML='<div class="empty"><div class="empty-ico">🔗</div><p>Chưa có link. Nhấn "+ Thêm link".</p></div>';return;}
+
+    // Load kênh của từng link
+    const chMap = {};
+    await Promise.all(lks.map(async l => {
+      try {
+        const chs = await api(`links/${l.id}/channels`);
+        chMap[l.id] = chs;
+      } catch(e) { chMap[l.id] = []; }
+    }));
+
+    document.getElementById('lk-body').innerHTML=`<div class="tw"><table>
+      <thead><tr><th>ID</th><th>Tên link</th><th>URL đích</th><th>Kênh yêu cầu</th><th>Views</th><th>Unlocks</th><th>Hiển thị</th><th>Thao tác</th></tr></thead>
+      <tbody>${lks.map(l=>`<tr>
+        <td><span class="mono">#${l.id}</span></td>
+        <td style="font-weight:600;min-width:120px">${esc(l.display_name)}</td>
+        <td><span class="ucell" title="${esc(l.target_url)}">${esc(l.target_url)}</span></td>
+        <td>
+          ${!chMap[l.id]||!chMap[l.id].length
+            ? '<span class="ch-tag none">Không có</span>'
+            : `<div class="ch-tags">${chMap[l.id].map(c=>`<span class="ch-tag" title="${esc(c.url)}">${esc(c.name)}</span>`).join('')}</div>`}
+        </td>
+        <td><span class="mono">${fmt(l.views||0)}</span></td>
+        <td><span class="mono" style="color:var(--grn)">${fmt(l.unlocks||0)}</span></td>
+        <td><div class="tog" onclick='tgLk(${l.id},${l.is_active},${JSON.stringify(l)})'>
+          <div class="tt ${l.is_active==1?'on':''}"><div class="tth"></div></div>
+          <span style="font-size:11px;color:var(--mut2)">${l.is_active==1?'Hiện':'Ẩn'}</span>
+        </div></td>
+        <td><div class="acts">
+          <button class="ab ac" onclick="openAssign(${l.id},'${esc(l.display_name)}',${JSON.stringify((chMap[l.id]||[]).map(c=>c.id))})">🎯 Kênh</button>
+          <button class="ab ae" onclick='editLk(${JSON.stringify(l)},${JSON.stringify((chMap[l.id]||[]).map(c=>c.id))})'>✏ Sửa</button>
+          <button class="ab ag" onclick="copyLink(${l.id})">🔗 Link</button>
+          <button class="ab ad" onclick="delLk(${l.id})">🗑</button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  } catch(e){document.getElementById('lk-body').innerHTML=`<div class="empty"><p style="color:var(--red)">❌ ${esc(e.message)}</p></div>`;}
+}
+
+function copyLink(id) {
+  const url = location.origin + location.pathname.replace('admin.html','index.html') + '?link=' + id;
+  navigator.clipboard.writeText(url).then(()=>toast('✅ Đã copy link: '+url)).catch(()=>toast('Link: '+url));
+}
+
+async function tgLk(id, cur, lk) {
+  try { await api('links/'+id,'PUT',{...lk,is_active:cur==1?0:1}); loadLinks(); }
+  catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function editLk(l, selectedIds=[]) {
+  document.getElementById('flk-id').value=l.id;
+  document.getElementById('flk-name').value=l.display_name;
+  document.getElementById('flk-desc').value=l.description||'';
+  document.getElementById('flk-url').value=l.target_url;
+  document.getElementById('flk-locked').value=l.locked_text;
+  document.getElementById('flk-unlocked').value=l.unlocked_text;
+  document.getElementById('flk-ord').value=l.sort_order;
+  document.getElementById('flk-act').value=l.is_active;
+  document.getElementById('mlk-t').textContent='✏ Sửa Link Unlock';
+  await loadAllChannels();
+  renderChCheckboxes('flk-channels', selectedIds);
+  document.getElementById('m-link').classList.add('open');
+}
+
+async function saveLk() {
+  const name=document.getElementById('flk-name').value.trim(), url=document.getElementById('flk-url').value.trim();
+  if(!name||!url){toast('Nhập đủ tên & URL!','err');return;}
+  const id=document.getElementById('flk-id').value;
+  const channelIds = getCheckedIds('flk-channels');
+  const data={display_name:name,description:document.getElementById('flk-desc').value,target_url:url,locked_text:document.getElementById('flk-locked').value,unlocked_text:document.getElementById('flk-unlocked').value,sort_order:parseInt(document.getElementById('flk-ord').value)||1,is_active:parseInt(document.getElementById('flk-act').value),channel_ids:channelIds};
+  try {
+    if(id) await api('links/'+id,'PUT',data); else await api('links','POST',data);
+    closeM('link'); loadLinks(); toast(id?'✅ Đã cập nhật!':'✅ Đã thêm link!');
+  } catch(e){toast('❌ '+e.message,'err');}
+}
+
+async function delLk(id) {
+  if(!confirm('Xóa link và toàn bộ log thống kê?')) return;
+  try { await api('links/'+id,'DELETE'); loadLinks(); toast('🗑 Đã xóa!'); }
+  catch(e){toast('❌ '+e.message,'err');}
+}
+
+// ── ASSIGN CHANNELS ───────────────────
+async function openAssign(linkId, linkName, selectedIds=[]) {
+  document.getElementById('fas-link-id').value = linkId;
+  document.getElementById('mas-t').textContent = '🎯 Kênh cho: '+linkName;
+  await loadAllChannels();
+  renderChCheckboxes('fas-channels', selectedIds);
+  document.getElementById('m-assign').classList.add('open');
+}
+
+async function saveAssign() {
+  const linkId = document.getElementById('fas-link-id').value;
+  const channelIds = getCheckedIds('fas-channels');
+  try {
+    await api('links/'+linkId+'/channels','POST',{channel_ids:channelIds});
+    closeM('assign'); loadLinks();
+    toast('✅ Đã cập nhật kênh cho link!');
+  } catch(e){toast('❌ '+e.message,'err');}
+}
+
+// ══ SETTINGS ══════════════════════════
+async function loadSettings() {
+  spin('sett-body');
+  try {
+    const s = await api('settings');
+    document.getElementById('sett-body').innerHTML=`
+      <div class="sg-form">
+        <div>
+          <div class="fg"><label>Tiêu đề trang</label><input id="st-t" value="${esc(s.page_title||'Unlock Link')}"></div>
+          <div class="fg"><label>Mô tả</label><input id="st-d" value="${esc(s.page_desc||'')}"></div>
+        </div>
+        <div>
+          <div class="fg"><label>Màu nút đăng ký</label><input id="st-c" value="${esc(s.btn_color||'#ff1e1e')}"></div>
+          <div class="fg"><label>Thời gian chờ (giây)</label><input type="number" id="st-dl" value="${esc(s.task_delay||'5')}" min="1" max="60"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSett()">💾 Lưu cài đặt</button>`;
+  } catch(e){document.getElementById('sett-body').innerHTML=`<p style="color:var(--red);padding:12px">❌ ${esc(e.message)}</p>`;}
+}
+
+async function saveSett() {
+  const data={page_title:document.getElementById('st-t').value,page_desc:document.getElementById('st-d').value,btn_color:document.getElementById('st-c').value,task_delay:document.getElementById('st-dl').value};
+  try { await api('settings','POST',data); toast('✅ Đã lưu cài đặt!'); }
+  catch(e){toast('❌ '+e.message,'err');}
+}
+
+function closeM(t){document.getElementById('m-'+t).classList.remove('open');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+</script>
+</body>
+</html>

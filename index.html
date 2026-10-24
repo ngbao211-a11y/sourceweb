@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unlock Link</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --card: #12121a;
+  --surface: #1a1a26;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.04);
+  --accent: #7c6cfc;
+  --text: #eeeef5;
+  --muted: #5a5a78;
+  --muted2: #3a3a52;
+  --danger: #ff4d6d;
+  --warn: #f5a623;
+  --success: #00e5a0;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+.glow-top {
+  position: fixed;
+  width: 600px; height: 300px;
+  top: -150px; left: 50%; transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(124,108,252,0.1) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+.glow-bottom {
+  position: fixed;
+  width: 400px; height: 300px;
+  bottom: -100px; right: -50px;
+  background: radial-gradient(ellipse, rgba(0,229,160,0.06) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  animation: fadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Single card ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+
+.card-topline {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 5%, var(--accent) 40%, rgba(0,229,160,0.6) 70%, transparent 95%);
+}
+
+/* ── Header ── */
+.card-header {
+  padding: 26px 24px 22px;
+  text-align: center;
+  border-bottom: 1px solid var(--border2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(124,108,252,0.1);
+  border: 1px solid rgba(124,108,252,0.2);
+  color: #a89dfc;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  padding: 5px 13px;
+  border-radius: 50px;
+  margin-bottom: 13px;
+}
+.badge-dot {
+  width: 5px; height: 5px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: blink 2s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 25px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 7px;
+}
+.desc {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* ── Body: steps + progress ── */
+.card-body {
+  padding: 20px 20px 20px;
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+/* Task buttons */
+.sub-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  border-radius: 11px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  width: 100%;
+  text-align: left;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.sub-btn:last-child { margin-bottom: 0; }
+.sub-btn:not(.done):hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
+.sub-btn:active { transform: scale(0.98) !important; }
+.sub-btn.done {
+  background: var(--surface) !important;
+  border-color: rgba(0,229,160,0.1) !important;
+  cursor: default; opacity: 0.7;
+}
+
+.btn-left { display: flex; align-items: center; gap: 11px; }
+.btn-icon {
+  width: 35px; height: 35px;
+  border-radius: 9px;
+  background: #ff0000;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0; transition: background 0.2s;
+}
+.sub-btn.done .btn-icon { background: rgba(0,229,160,0.08); }
+
+.btn-label { display: flex; flex-direction: column; }
+.btn-name { font-size: 13.5px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.btn-hint { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+
+.status { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top-color: rgba(255,255,255,0.7);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.check {
+  width: 24px; height: 24px;
+  background: var(--success);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  animation: pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes pop { from{opacity:0;transform:scale(0.3)} to{opacity:1;transform:scale(1)} }
+.check::before {
+  content:''; width:5px; height:9px;
+  border-right: 2px solid #0a0a0f;
+  border-bottom: 2px solid #0a0a0f;
+  transform: rotate(45deg) translate(-1px,-1px);
+}
+
+/* Progress */
+.progress-wrap { display: none; padding-top: 14px; }
+.progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.progress-label { font-size: 10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); }
+.progress-count { font-size: 12px; font-weight: 600; color: var(--text); }
+.progress-count em { color: var(--muted); font-style: normal; font-weight: 400; }
+.bar { width:100%; height:5px; background:var(--muted2); border-radius:50px; overflow:hidden; }
+.fill { height:100%; width:0%; border-radius:50px; background:var(--danger); transition: width 0.5s ease, background 0.4s ease; }
+
+/* ── Divider ── */
+.divider { height: 1px; background: var(--border2); }
+
+/* ── Footer: unlock always here ── */
+.card-footer {
+  padding: 16px 20px 20px;
+}
+
+.unlock-btn {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px 17px;
+  border-radius: 13px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.unlock-btn.locked {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  pointer-events: none; cursor: default;
+}
+
+.unlock-btn.active {
+  background: linear-gradient(135deg, #00d48e, #00a86e);
+  border: 1px solid transparent;
+  pointer-events: auto; cursor: pointer;
+  box-shadow: 0 6px 28px rgba(0,212,142,0.28);
+  animation: unlockReveal 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes unlockReveal { from{opacity:0.5;transform:scale(0.97)} to{opacity:1;transform:scale(1)} }
+.unlock-btn.active:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(0,212,142,0.38); }
+.unlock-btn.active:active { transform: scale(0.98); }
+
+.unlock-btn.active::after {
+  content: '';
+  position: absolute; top:0; left:-100%;
+  width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  animation: shimmer 2.5s ease 0.6s infinite;
+}
+@keyframes shimmer { to { left: 160%; } }
+
+.lock-icon-wrap {
+  width: 42px; height: 42px; border-radius: 11px;
+  background: rgba(255,255,255,0.07);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0; transition: background 0.3s;
+}
+.unlock-btn.active .lock-icon-wrap { background: rgba(0,0,0,0.12); }
+
+.unlock-info { flex: 1; min-width: 0; }
+.unlock-name {
+  font-size: 14px; font-weight: 700; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.unlock-btn.active .unlock-name { color: #012a1c; }
+.unlock-subdesc { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.unlock-btn.active .unlock-subdesc { color: rgba(0,30,20,0.5); }
+
+.unlock-arrow { color: var(--muted); font-size: 17px; flex-shrink: 0; transition: transform 0.2s, color 0.2s; }
+.unlock-btn.active .unlock-arrow { color: rgba(0,30,20,0.4); }
+.unlock-btn.active:hover .unlock-arrow { transform: translateX(4px); }
+
+/* Misc */
+.loading { color:var(--muted); font-size:13.5px; padding:20px 0; text-align:center; }
+.no-channels {
+  background: rgba(0,229,160,0.05);
+  border: 1px solid rgba(0,229,160,0.13);
+  border-radius: 10px; padding: 14px 16px;
+  color: var(--success); font-size: 13px; font-weight: 500; text-align: center;
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 22px; }
+  .card-header { padding: 20px 18px 18px; }
+  .card-body { padding: 16px; }
+  .card-footer { padding: 14px 16px 18px; }
+}
+</style>
+</head>
+<body>
+<div class="glow-top"></div>
+<div class="glow-bottom"></div>
+
+<div class="container">
+  <div class="card">
+    <div class="card-topline"></div>
+
+    <!-- Header -->
+    <div class="card-header">
+      <div class="badge"><span class="badge-dot"></span> Yêu cầu xác minh</div>
+      <h1 id="page-title">Unlock Link</h1>
+      <p class="desc" id="page-desc">Hoàn thành các bước để mở khóa link</p>
+    </div>
+
+    <!-- Body: steps + progress -->
+    <div class="card-body">
+      <div class="section-label" id="steps-label">Các bước cần hoàn thành</div>
+      <div id="buttons-wrap"><div class="loading">⏳ Đang tải...</div></div>
+
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-row">
+          <span class="progress-label">Tiến độ</span>
+          <span class="progress-count"><span id="count">0</span><em> / </em><span id="total">0</span></span>
+        </div>
+        <div class="bar"><div class="fill" id="bar"></div></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Footer: unlock button always pinned at bottom -->
+    <div class="card-footer">
+      <div id="links-wrap"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = './api.php?path=';
+let completed = 0, totalRequired = 0, taskDelay = 5000, unlocked = false;
+const urlParams = new URLSearchParams(location.search);
+const linkId = urlParams.get('link') ? parseInt(urlParams.get('link')) : null;
+
+async function init() {
+  try {
+    const [settings, links] = await Promise.all([
+      fetch(API + 'settings').then(r => r.json()),
+      fetch(API + 'links&active=1').then(r => r.json()),
+    ]);
+
+    if (settings.page_title) document.title = settings.page_title;
+    document.getElementById('page-title').textContent = settings.page_title || 'Unlock Link';
+    document.getElementById('page-desc').textContent  = settings.page_desc  || '';
+    if (settings.task_delay) taskDelay = parseInt(settings.task_delay) * 1000;
+
+    const btnColor = settings.btn_color || '#ff0000';
+
+    let activeLink = null;
+    if (linkId) activeLink = links.find(l => l.id == linkId) || null;
+    if (!activeLink && links.length > 0) activeLink = links[0];
+
+    if (!activeLink) {
+      document.getElementById('buttons-wrap').innerHTML =
+        '<div class="loading" style="color:#ff4d6d">⚠ Không có link nào đang hoạt động.</div>';
+      renderUnlockTarget({ id: 0, display_name: '—', target_url: '#' });
+      return;
+    }
+
+    if (activeLink.description)
+      document.getElementById('page-desc').textContent = activeLink.description;
+
+    renderUnlockTarget(activeLink);
+
+    const channels = await fetch(API + `links/${activeLink.id}/channels`).then(r => r.json());
+
+    if (!channels.length) {
+      document.getElementById('buttons-wrap').innerHTML =
+        '<div class="no-channels">✅ Không cần hoàn thành bước nào!</div>';
+      document.getElementById('steps-label').style.display = 'none';
+      activateLinks(activeLink);
+    } else {
+      renderChannels(channels, btnColor, activeLink.id);
+    }
+
+    track('pageview', activeLink.id);
+  } catch(e) {
+    document.getElementById('buttons-wrap').innerHTML =
+      '<div class="loading" style="color:#ff4d6d">⚠ Không kết nối được API.<br><small>Chạy trên server PHP có MySQL.</small></div>';
+    renderUnlockTarget({ id: 0, display_name: 'Chưa sẵn sàng', target_url: '#' });
+  }
+}
+
+function renderChannels(channels, btnColor, lid) {
+  const required = channels.filter(c => c.is_required == 1);
+  totalRequired = required.length;
+
+  if (totalRequired > 0) {
+    document.getElementById('progress-wrap').style.display = '';
+    document.getElementById('total').textContent = totalRequired;
+  }
+
+  const wrap = document.getElementById('buttons-wrap');
+  wrap.innerHTML = channels.map(ch => `
+    <button class="sub-btn" id="btn-${ch.id}"
+        style="background:${esc(btnColor)}15;border-color:${esc(btnColor)}40"
+        onclick="startTask(this,${ch.id},'${esc(ch.url)}',${ch.is_required},${lid})">
+      <div class="btn-left">
+        <div class="btn-icon">▶</div>
+        <div class="btn-label">
+          <span class="btn-name">${esc(ch.name)}</span>
+          <span class="btn-hint">${ch.is_required==1?'🔴 Bắt buộc':'⚪ Tùy chọn'} · Nhấn để thực hiện</span>
+        </div>
+      </div>
+      <div class="status" id="st-${ch.id}"></div>
+    </button>`).join('');
+
+  if (totalRequired === 0) activateLinks(document.getElementById('links-wrap')._link);
+}
+
+function renderUnlockTarget(link) {
+  const wrap = document.getElementById('links-wrap');
+  wrap._link = link;
+  wrap.innerHTML = `
+    <a href="${esc(link.target_url)}" id="unlock-link-${link.id}" class="unlock-btn locked"
+       onclick="onUnlockClick(event,${link.id||0})" target="_blank">
+      <div class="lock-icon-wrap"><span id="lock-icon-${link.id}">🔒</span></div>
+      <div class="unlock-info">
+        <div class="unlock-name" id="unlock-name-${link.id}">${esc(link.display_name)}</div>
+        <div class="unlock-subdesc" id="unlock-sub-${link.id}">Hoàn thành các bước để mở khóa</div>
+      </div>
+      <span class="unlock-arrow">→</span>
+    </a>`;
+}
+
+function onUnlockClick(e, lid) {
+  if (!unlocked) { e.preventDefault(); return; }
+  track('unlock', lid);
+}
+
+function activateLinks(link) {
+  if (!link) link = document.getElementById('links-wrap')._link;
+  if (!link) return;
+  const el = document.getElementById('unlock-link-' + link.id);
+  if (el) {
+    el.classList.remove('locked');
+    el.classList.add('active');
+    document.getElementById('lock-icon-' + link.id).textContent = '🔓';
+    document.getElementById('unlock-name-' + link.id).textContent = link.unlocked_text || link.display_name;
+    document.getElementById('unlock-sub-' + link.id).textContent = 'Nhấn để truy cập ngay';
+  }
+  unlocked = true;
+}
+
+function startTask(btn, channelId, link, isRequired, lid) {
+  if (btn.classList.contains('done')) return;
+  const st = document.getElementById('st-' + channelId);
+  st.innerHTML = '<div class="spinner"></div>';
+  track('click_channel', lid, channelId);
+  setTimeout(() => window.open(link, '_blank'), 800);
+  setTimeout(() => {
+    btn.classList.add('done');
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    st.innerHTML = '<div class="check"></div>';
+    if (isRequired) {
+      completed++;
+      document.getElementById('count').textContent = completed;
+      const pct = Math.round(completed / totalRequired * 100);
+      const bar = document.getElementById('bar');
+      bar.style.width = pct + '%';
+      if (pct < 50)       bar.style.background = 'var(--danger)';
+      else if (pct < 100) bar.style.background = 'var(--warn)';
+      else                bar.style.background = 'var(--success)';
+      if (completed >= totalRequired)
+        activateLinks(document.getElementById('links-wrap')._link);
+    }
+  }, taskDelay);
+}
+
+function track(event, lId, channelId) {
+  fetch(API + 'track', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ event, link_id: lId||null, channel_id: channelId||null })
+  }).catch(()=>{});
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+init();
+</script>
+</body>
+</html>
